@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-const fetchClosure = (url, { method = 'POST', ...otherOps } = {}, setData, setLoading) => data => {
+const fetchClosure = (url, { method = 'GET', ...otherOps } = {}, setData, setLoading) => data => {
   setLoading(true);
 
   const ops = { method };

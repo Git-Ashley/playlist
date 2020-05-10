@@ -2,7 +2,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const express = require('express')
 
-const Item = require('./models/Item');
+const Card = require('./models/card-course-model/card');
 const router = express.Router();
 
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -12,22 +12,41 @@ router.use(cookieParser());
 // Routes example
 //app.use('/auth', require(API_ROOT + '/routes/auth/auth.js')());
 
-router.post('/test', (req, res) => {
-    res.json({ res: req.body.value });
-});
-
-router.get('/items', (req, res) => Item.find()
-    .then(items => res.json({ items }))
-    .catch(err => res.status(404).json({ msg: 'No items found' }))
+router.get('/cards', (req, res) => Card.find()
+    .then(cards => res.json({ cards }))
+    .catch(err => res.status(404).json({ msg: 'No cards found' }))
 );
 
 router.post('/item/add', (req, res) => {
-    const newItem = new Item({
+    const newItem = new Card({
         name: req.body.name,
         value: req.body.value
     });
 
-    newItem.save().then(item => res.redirect('/'));
+    newItem.save().then(item => res.json({ item }));
+});
+
+router.post('/upload', (req, res) => {
+  // start le upload process
+  const kanjiList = JSON.parse(fs.readFileSync(`./kanji-sample.json`, 'utf8'));
+
+
 });
 
 module.exports = router;
+
+
+/**
+ *   passport.deserializeUser(function(id, done) {
+    User.
+      findOne({ _id : id }).
+      exec(done);
+  });
+ */
+
+
+/**
+ *router.post('/unlink/:site', function(req, res){
+    const site = req.params.site;
+    const user = req.user;
+ */

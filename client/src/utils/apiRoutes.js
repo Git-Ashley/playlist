@@ -1,3 +1,3 @@
 export default {
-  joinGame: () => '/api/join-game'
+  example: () => '/api/example'
 }

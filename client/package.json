@@ -1,6 +1,6 @@
 {
-  "name": "game-test",
-  "main": "src/Game/index.js",
+  "name": "memryze-app-client",
+  "main": "src/index.js",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
