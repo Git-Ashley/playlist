@@ -5,10 +5,10 @@ const CardSchema = new Schema({
   value: { type: String, required: true },
   definition: String,
   mems: [Schema.Types.ObjectId],
-  primaryAttribute: Schema.Types.Mixed,// the default index
-  secondaryAttribute: Schema.Types.Mixed,
-  tertiaryAttribute: Schema.Types.Mixed,
-  otherAttributes: [{
+  primary_index: Schema.Types.Mixed,// the default index
+  secondary_index: Schema.Types.Mixed,
+  tertiary_index: Schema.Types.Mixed,
+  other_attributes: [{
     key: { type: String, required: true },
     value: { type: String, required: true },
     showWithValue: { type: Schema.Types.Bool, default: false }
@@ -17,9 +17,18 @@ const CardSchema = new Schema({
   course_tags: [String]
 });
 
-CardSchema.index({ primaryAttribute: 1 });
-CardSchema.index({ secondaryAttribute: 1 });
-CardSchema.index({ tertiaryAttribute: 1 });
-CardSchema.index({ course_tags: 1 }, { sparse: true });
+CardSchema.index({ course_id: 1, primary_index: 1 });
+CardSchema.index(
+  { course_id: 1, secondary_index: 1 },
+  { partialFilterExpression: { secondary_index: { $exists: true } } },
+);
+CardSchema.index(
+  { course_id: 1, tertiary_index: 1 },
+  { partialFilterExpression: { tertiary_index: { $exists: true } } },
+);
+CardSchema.index(
+  { course_id: 1, course_tags: 1 },
+  { partialFilterExpression: { course_tags: { $exists: true } } },
+);
 
 module.exports = Card = mongoose.model('card', CardSchema);
