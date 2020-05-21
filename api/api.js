@@ -4,6 +4,7 @@ const express = require('express');
 
 const Card = require('./models/card-course-model/card');
 const User = require('./models/card-course-model/user');
+const UserCardStats = require('./models/card-course-model/user-card-stats');
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 router.use(cookieParser());
 router.use((req, res, next) => {
-  User.findOne({ username : 'rooster356' }).exec(user => {
+  User.findOne({ username : 'rooster356' }).then(user => {
     req.user = user;
     next();
   });
@@ -20,20 +21,48 @@ router.use((req, res, next) => {
 // Routes example
 //app.use('/auth', require(API_ROOT + '/routes/auth/auth.js')());
 
+//TODO /cards/search add params: courseId, userId, tags, sort order
 router.get('/cards', (req, res) => {
   Card.find()
-    .then(cards => res.json({ cards }))
+    .then(cards => res.json(cards))
     .catch(err => res.status(404).json({ msg: 'No cards found' }))
   }
 );
 
-router.post('/item/add', (req, res) => {
-  const newItem = new Card({
-    name: req.body.name,
-    value: req.body.value
-  });
+router.post('/login', (req, res) => {
+  User.findOne({ username : req.body.username }).then(user => res.json(user));
+});
 
-  newItem.save().then(item => res.json({ item }));
+//router.post('/course/:courseId')
+router.post('/card/:cardId/update', async (req, res) => {
+  //TODO if (level !== 0) { calculate review_date }
+  const userId = req.user.id;
+  const cardId = req.params.cardId;
+
+  const updates = {};
+  const tags = req.body.tags;
+  const level = req.body.tags;
+
+  if (Array.isArray(tags)) {
+    updates.tags = tags;
+  }
+
+  if (level) {
+    updates.level = level;
+  }
+
+  const userCardInfo = await UserCardStats.findOneAndUpdate(
+    {
+      user_id: userId,
+      card_id: cardId,
+    },
+    updates,
+    {
+      new: true,
+      upsert: true, // Make this update into an upsert
+    }
+  );
+  res.json({ userId, cardId });
 });
 
 module.exports = router;
@@ -52,4 +81,4 @@ module.exports = router;
  *router.post('/unlink/:site', function(req, res){
     const site = req.params.site;
     const user = req.user;
- */3
+ */

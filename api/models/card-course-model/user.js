@@ -51,6 +51,8 @@ const UserSchema = new Schema({
   }
 });
 
-
+UserSchema.methods.getId = function(){
+  return this._id.toString();
+};
 
 module.exports = User = mongoose.model('user', UserSchema);
