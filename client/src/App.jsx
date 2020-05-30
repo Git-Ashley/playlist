@@ -14,13 +14,12 @@ export default () => {
   useEffect(() => {
     apiFetch(apiRoutes.login(), {
       username: 'rooster356'
-    }).then(user => console.log('user res:', user) || setUser(user));
+    }).then(user => setUser(user));
   }, []);
 
   return (
     <AppContainer>
       <UserProvider user={user}>
-        <div>App container</div>
         <CardViewer />
       </UserProvider>
     </AppContainer>

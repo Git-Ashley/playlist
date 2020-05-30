@@ -1,21 +1,10 @@
 import { useState } from "react";
+import apiFetch from 'util/apiFetch';
 
-const fetchClosure = (url, { method = 'GET', ...otherOps } = {}, setData, setLoading) => data => {
+const fetchClosure = (url, ops, setData, setLoading) => payload => {
   setLoading(true);
 
-  const ops = { method };
-
-  if (method !== 'GET' && method !== 'DELETE') {
-    ops.headers = {
-      'Content-Type': 'application/json'
-    };
-    ops.body = JSON.stringify(data);
-  }
-
-  const fetchOptions = Object.assign({}, ops, otherOps);
-
-  return fetch(url, fetchOptions)
-    .then(res => res.json())
+  return apiFetch(url, payload, ops)
     .then(setData)
     .catch(console.log)
     .finally(() => setLoading(false))

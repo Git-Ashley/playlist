@@ -4,6 +4,11 @@ const apiPrefix = '/api';
 const apiRoutes = {
   cards: () => '/cards',
   login: () => '/login',
+  updateCard: cardId => `/card/${cardId}/update`,
+  reviewCard: cardId => `/card/${cardId}/review`,
+  mems: () => '/mems',
+  addMem: () => '/mem/add',
+  deleteMem: () => `/mem/delete`,
 };
 
 let derivedApiRoutes = {};

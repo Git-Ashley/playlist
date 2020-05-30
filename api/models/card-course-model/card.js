@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const CardSchema = new Schema({
+const attrs = {
   value: { type: String, required: true },
   definition: String,
   mems: [Schema.Types.ObjectId],
@@ -15,7 +15,9 @@ const CardSchema = new Schema({
   }],//NOT ABLE TO INDEX.
   course_id: { type: Schema.Types.ObjectId, required: true },
   course_tags: [String]
-});
+};
+
+const CardSchema = new Schema(attrs);
 
 CardSchema.index({ course_id: 1, primary_index: 1 });
 CardSchema.index(
@@ -32,3 +34,4 @@ CardSchema.index(
 );
 
 module.exports = Card = mongoose.model('card', CardSchema);
+module.exports.attrs = Object.keys(attrs);

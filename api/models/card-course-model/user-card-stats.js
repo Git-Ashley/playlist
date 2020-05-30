@@ -1,20 +1,27 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const UserCardStatsSchema = new Schema({
+const attrs = {
   user_id: { type: Schema.Types.ObjectId, required: true },
   card_id: { type: Schema.Types.ObjectId, required: true },
   selected_mem: { type: Schema.Types.ObjectId },
   level: Number,
   tags: [String],
   review_date: Schema.Types.Date
-});
+};
 
+const UserCardStatsSchema = new Schema(attrs);
+
+UserCardStatsSchema.index(
+  { user_id: 1, card_id: 1 },
+  { unique: true },
+);
 UserCardStatsSchema.index({ level: 1 }, { sparse: true });
 UserCardStatsSchema.index({ tags: 1 }, { sparse: true });
+UserCardStatsSchema.index({ review_date: 1 }, { sparse: true });
 
 module.exports = Mem = mongoose.model('userCardStats', UserCardStatsSchema);
-
+module.exports.attrs = Object.keys(attrs);
 
 // TODO Ability to pass a modifier to the time (separate from the lvl; it will simply affect the cooldown directly)
 

@@ -6,4 +6,10 @@ const MemSchema = new Schema({
   author: { type: String, required: true }
 });
 
+MemSchema.method('toJSON', function () {
+  const { __v, _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
+
 module.exports = Mem = mongoose.model('mem', MemSchema);
