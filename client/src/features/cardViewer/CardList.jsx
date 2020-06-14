@@ -34,7 +34,7 @@ const CardRowContainer = styled.div`
   
   & >:nth-child(1) {
     grid-area: value;
-    font-size: 40px;
+    font-size: 60px;
   }
   
   & >:nth-child(2) {

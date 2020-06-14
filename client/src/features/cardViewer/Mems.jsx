@@ -116,7 +116,7 @@ export default ({ card }) => {
   }
 
   if (!mems || !mems.length) {
-    return <div>No mems.</div>
+    return <NewMem cardId={card.id} />;
   }
   return <MemsContainer>
     {mems.map(mem =>
