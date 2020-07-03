@@ -11,6 +11,7 @@ const CardTable = styled.div`
 `;
 
 const CardRowContainer = styled.div`
+  background-color: ${props => props.ignored ? '#e4955b' : 'inherit'};
   border-bottom: 1px solid black;
   border-right: 1px solid black;
   margin: 10px 0 10px;
@@ -81,7 +82,7 @@ const CardRow = ({ card }) => {
   const [show, setShow] = useState(false);
 
   return (
-    <CardRowContainer>
+    <CardRowContainer ignored={card.tags.includes('ignore')}>
       <div>{card.value}</div>
       <ShowHide onShow={() => setShow(true)} show={show} text={card.definition} />
       <div>{new Date(card.review_date).toDateString()}</div>

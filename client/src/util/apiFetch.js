@@ -1,4 +1,6 @@
-export default (url, payload, ops = {}) => {
+export default (path, payload, ops = {}) => {
+
+  let url = path;
 
   const fetchOps = {
     method: ops.method || (payload ? 'POST' : 'GET'),
@@ -9,6 +11,11 @@ export default (url, payload, ops = {}) => {
 
   if (payload && ['PUT', 'POST'].includes(fetchOps.method)) {
     fetchOps.body = JSON.stringify(payload);
+  }
+
+  if (payload && fetchOps.method === 'GET') {
+    url += '?';
+    url += Object.entries(payload).map(arr => arr.join('=')).join('&');
   }
 
   const fetchOptions = Object.assign({}, ops, fetchOps);

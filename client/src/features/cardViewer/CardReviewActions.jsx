@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { useUser } from 'app/UserContext';
-import { reviewCard } from 'data/cardsSlice';
+import { reviewCard, ignoreCard } from 'data/cardsSlice';
 import styled from "styled-components";
 import React from "react";
 
@@ -18,8 +18,8 @@ const Controls = ({ card }) => {
   const currentLevel = card.level;
 
   const onReviewFinish = (level) => dispatch(reviewCard(card.id, level));
+  const onIgnoreCard = () => dispatch(ignoreCard(card.id));
 
-  console.log('length of array:', levels.length)
   return (
     <ControlsContainer>
       {levels.map(({ denomination, value }, i) => (
@@ -31,7 +31,7 @@ const Controls = ({ card }) => {
           {`${value} ${denomination}`}
         </button>
       ))}
-      <button>ignore</button>
+      <button onClick={onIgnoreCard}>ignore</button>
     </ControlsContainer>
   );
 };

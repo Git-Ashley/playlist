@@ -8,15 +8,6 @@ export default () => {
   const cards = useSelector(selectCards);
   const dispatch = useDispatch();
 
-
-  /*useEffect(() => {
-    if (cards && cards[0]) {
-      const cardId = cards[0]._id;
-      apiFetch(`/api/card/${cardId}/update`, { tags: ['hey'] })
-        .then(res => console.log('res:', res));
-    }
-  }, [cards]);*/
-
   useEffect(() => {
     dispatch(getCards());
   }, []);

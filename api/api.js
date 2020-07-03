@@ -11,7 +11,7 @@ const Mem = require('./models/card-course-model/mem');
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
 // Utils
-const getUserFormattedCard = ({ default_levels }, card, cardStats = {}) => {
+const getUserFormattedCard = (defaultLevels, card, cardStats = {}) => {
   const userCard = Card.attrs.reduce((accum, attr) => {
     accum[attr] = card[attr];
     return accum;
@@ -19,7 +19,7 @@ const getUserFormattedCard = ({ default_levels }, card, cardStats = {}) => {
 
   UserCardStats.attrs.forEach((attr) => {
     if (['level'].includes(attr)) {
-      const level = Math.floor(cardStats[attr]/default_levels.length);
+      const level = Math.floor(cardStats[attr]/defaultLevels.length);
       userCard[attr] = level;
       return;
     }
@@ -34,6 +34,17 @@ const getUserFormattedCard = ({ default_levels }, card, cardStats = {}) => {
   return userCard;
 };
 
+const combineStatsWithCards = async (userCardStats, defaultLevels) => {
+  // use outer joins @ later date
+  const cardIds = userCardStats.map(item => item.card_id);
+
+  const cards = await Card.where('_id').in(cardIds);
+
+  return userCardStats.map(stats => {
+    const card = cards.find(card => card._id.toString() === stats.card_id.toString());
+    return getUserFormattedCard(defaultLevels, card, stats);
+  });
+};
 
 // Routes
 const router = express.Router();
@@ -46,6 +57,10 @@ router.use((req, res, next) => {
     req.user = user;
     next();
   });
+});
+router.use((req, res, next) => {
+  req.courseId = COURSE_ID;
+  next();
 });
 
 /**
@@ -64,7 +79,6 @@ router.post('/mem/delete', async (req, res) => {
   const memId = req.body.memId;
   const cardId = req.body.cardId;
 
-  console.log('memIid:', memId);
   await Mem.deleteOne({ _id: memId });
 
   const updatedCard = await Card.findOneAndUpdate(
@@ -100,26 +114,40 @@ router.post('/mem/add', async (req, res) => {
 /**
  * Card routes
  */
-router.get('/cards', async (req, res) => {
+router.get('/cards/search', async (req, res) => {
   const userId = req.user.id;
+  const courseId = req.courseId;
 
-  //TODO Will obv need to search by user ID & course ID too.
-  const userCardStatsList = await UserCardStats.find({ user_id: userId, review_date: { $lte: new Date() } });
-  const statsMap = userCardStatsList.reduce((accum, stats) => {
-    accum[stats.card_id] = stats;
-    return accum;
-  }, {});
+  const excludeUserTags = req.query.excludeUserTags && req.query.excludeUserTags.split(',');
+  const excludeCourseTags = req.query.excludeCourseTags;
+  const includeUserTags = req.query.includeUserTags;
+  const includeCourseTags = req.query.incudeCourseTags;
+  const includeTagsMode = 'UNION';
+  const reviewDateMode = 'BEFORE';
 
-  const cardIds = userCardStatsList.map(item => item.card_id);
+  const sortBy = 'review_date';
+  const sortMode = 'asc';
 
-  const cards = await Card.where('_id').in(cardIds).sort({ secondary_index: -1 });
+  /**
+   * For queries that involve both CARD and STATS, see https://docs.mongodb.com/manual/reference/database-references/
+   */
+  const query = {
+    user_id: userId,
+  };
 
-  const userCards = [];
-
-  for (const card of cards) {
-    const stats = statsMap[card.id];
-    userCards.push(getUserFormattedCard(req.user, card, stats));
+  if (reviewDateMode === 'BEFORE') {
+    query.review_date = { $lte: new Date() };
+  } else if (reviewDateMode === 'AFTER') {
+    query.review_date = { $gte: new Date() };
   }
+
+  if (excludeUserTags && excludeUserTags.length) {
+    query.tags = { $nin: excludeUserTags };
+  }
+
+  const userCardStatsList = await UserCardStats.find(query).sort({ [sortBy]: sortMode });
+
+  const userCards = await combineStatsWithCards(userCardStatsList, req.user.default_levels);
 
   res.json(userCards);
 });
@@ -128,16 +156,11 @@ router.post('/card/:cardId/review', async (req, res) => {
   const user = req.user;
   const cardId = req.params.cardId;
   const level = req.body.level;
-
   const { denomination, value } = user.default_levels[level];
+  const updates = {};
 
   const nextReview = moment().add(value, denomination);
-  console.log('cardId, denomination, value:', cardId, denomination, value);
-  console.log('nextReview:', nextReview);
-
   const score = level * user.default_levels.length;
-
-  const updates = {};
 
   if (!isNaN(level)) {
     updates.level = score;
@@ -226,8 +249,9 @@ router.post('/card/:cardId/update', async (req, res) => {
 
   const newCardInfo = await userCardInfo.save();
 
-  console.log('newcardInfo:', JSON.stringify(newCardInfo));
-  res.json(JSON.stringify(newCardInfo));
+  const userCards = await combineStatsWithCards([newCardInfo], req.user.default_levels);
+
+  res.json(userCards[0]);
 });
 
 module.exports = router;
