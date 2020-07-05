@@ -39,6 +39,7 @@ const combineStatsWithCards = async (userCardStats, defaultLevels) => {
   const cardIds = userCardStats.map(item => item.card_id);
 
   const cards = await Card.where('_id').in(cardIds);
+  // Could create id -> card map, but it will be less efficient for small number of userCardStats.
 
   return userCardStats.map(stats => {
     const card = cards.find(card => card._id.toString() === stats.card_id.toString());

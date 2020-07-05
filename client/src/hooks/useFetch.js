@@ -7,7 +7,7 @@ const fetchClosure = (url, ops, setData, setLoading) => payload => {
   return apiFetch(url, payload, ops)
     .then(setData)
     .catch(console.log)
-    .finally(() => setLoading(false))
+    .then(() => setLoading(false))
 };
 
 const useFetch = (url, ops) => {
