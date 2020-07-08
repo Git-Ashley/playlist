@@ -9,36 +9,33 @@ export const cardsSlice = createSlice({
     setCards: (state, action) => action.payload,
     setCard: (state, action) => {
       const updatedCard = action.payload;
-      const index = state.findIndex(card => card.id === updatedCard.id);
-
-      if (index !== -1) {
-        state[index] = updatedCard;
-      }
-    },
-    updateCard: (state, action) => {
-      const { updates, id } = action.payload;
-      const index = state.findIndex(card => card.id === id);
-
-      if (index !== -1) {
-        state[index] = { ...state[index], ...updates };
-      }
+      state[updatedCard.id] = updatedCard;
     },
     setMems: (state, action) => {
       const { updatedMems, cardId } = action.payload;
-      const card = state.find(card => card.id === cardId);
-      console.log('card', card);
+      const card = state[cardId];
 
-      card.mems = updatedMems;
+      if (card) {
+        card.mems = updatedMems;
+      }
     },
   },
 });
 
 const sliceActions = cardsSlice.actions;
-//export const { } = cardsSlice.actions;
 
-export const getCards = () => dispatch => {
-  apiFetch(apiRoutes.cardsSearch(), { excludeUserTags: 'ignore' }, { method: 'GET' })
-    .then(cards => dispatch(sliceActions.setCards(cards)));
+export const getCards = () => async (dispatch) => {
+  const cards = await apiFetch(apiRoutes.cardsSearch(), { excludeUserTags: ['ignore'] }, { method: 'POST' });
+
+  const cardsOrder = cards.map(card => card.id);
+  const cardsMap = cards.reduce((accum, card) => {
+    accum[card.id] = card;
+    return accum;
+  }, {});
+
+  dispatch(sliceActions.setCards(cardsMap));
+
+  return cardsOrder;
 };
 
 export const updateCard = (cardId, updates) => dispatch => {
@@ -83,18 +80,12 @@ export const deleteMem = (id, cardId) => dispatch => {
     });
 };
 
-/*export const selectMem = (memId) => dispatch => {
-  apiFetch()
-    .then()
-};*/
+export const selectCards = ids => ({ cards }) =>
+  Object
+    .entries(cards)
+    .filter(([key]) => ids.includes(key))
+    .map(([key, value]) => value);
 
-export const selectCards = state => state.cards;
-export const selectCard = id => state => state.cards.find(card => card.id === id);
+export const selectCard = id => state => state.cards[id];
 
 export default cardsSlice.reducer;
-
-
-/** TODO
- * Probbaly have a selector which allows passing in a searchOrder array. Where does searchOrder come from?
- * Here? Some UI reducer? Find out... after the break.
- */

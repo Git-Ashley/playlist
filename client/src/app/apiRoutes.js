@@ -12,13 +12,12 @@ const apiRoutes = {
   deleteMem: () => `/mem/delete`,
 };
 
-let derivedApiRoutes = {};
-
-Object.entries(apiRoutes).map(([key, fn]) => {
-  derivedApiRoutes[key] = (...args) => {
+const derivedApiRoutes = Object.entries(apiRoutes).reduce((accum, [key, fn]) => {
+  accum[key] = (...args) => {
     const route = fn(...args);
     return `${apiPrefix}${route}`;
-  }
-});
+  };
+  return accum;
+}, {});
 
 export default derivedApiRoutes

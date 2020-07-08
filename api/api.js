@@ -69,7 +69,7 @@ router.use((req, res, next) => {
  */
 router.post('/mems', async (req, res) => {
   if (!req.user || !Array.isArray(req.body)) {
-    return res.json({msg: 'fuck off'});
+    return res.json({msg: 'Permission denied'});
   }
 
   const mems = await Mem.where('_id').in(req.body);
@@ -115,14 +115,14 @@ router.post('/mem/add', async (req, res) => {
 /**
  * Card routes
  */
-router.get('/cards/search', async (req, res) => {
+router.post('/cards/search', async (req, res) => {
   const userId = req.user.id;
   const courseId = req.courseId;
 
-  const excludeUserTags = req.query.excludeUserTags && req.query.excludeUserTags.split(',');
-  const excludeCourseTags = req.query.excludeCourseTags;
-  const includeUserTags = req.query.includeUserTags;
-  const includeCourseTags = req.query.incudeCourseTags;
+  const excludeUserTags = req.body.excludeUserTags;
+  const excludeCourseTags = req.body.excludeCourseTags;
+  const includeUserTags = req.body.includeUserTags;
+  const includeCourseTags = req.body.incudeCourseTags;
   const includeTagsMode = 'UNION';
   const reviewDateMode = 'BEFORE';
 
@@ -145,6 +145,8 @@ router.get('/cards/search', async (req, res) => {
   if (excludeUserTags && excludeUserTags.length) {
     query.tags = { $nin: excludeUserTags };
   }
+
+  console.log('query.tags:', query.tags);
 
   const userCardStatsList = await UserCardStats.find(query).sort({ [sortBy]: sortMode });
 
@@ -218,7 +220,6 @@ router.post('/login', (req, res) => {
   User.findOne({ username : req.body.username }).then(user => res.json(user));
 });
 
-//router.post('/course/:courseId')
 router.post('/card/:cardId/update', async (req, res) => {
   //TODO if (level !== 0) { calculate review_date }
   const userId = req.user.id;

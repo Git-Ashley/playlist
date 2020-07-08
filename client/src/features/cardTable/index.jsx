@@ -7,7 +7,8 @@ const CardTable = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #d8bc7a;
+  height: 100%;
+  padding: 20px;
 `;
 
 const CardRowContainer = styled.div`
@@ -101,5 +102,6 @@ const CardRow = ({ card }) => {
 export default ({ cards }) => (
   <CardTable>
     {cards.map(card => <CardRow key={card.id} card={card} />)}
+    {!cards.length ? <div>No results</div> : ''}
   </CardTable>
 );

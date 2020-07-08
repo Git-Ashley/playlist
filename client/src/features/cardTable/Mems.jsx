@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
+/* eslint-disable-next-line react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import apiRoutes from 'app/apiRoutes';
 import useFetch from 'hooks/useFetch';
 import styled from 'styled-components';
@@ -105,6 +106,7 @@ export default ({ card }) => {
 
   const deleteMemHandler = (id) => dispatch(deleteMem(id, card.id));
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (card.mems && card.mems.length) {
       fetchMems(card.mems);
