@@ -1,33 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import styled from 'styled-components';
 import { getCards, selectCards } from "data/cardsSlice";
 import CardTable from 'features/cardTable';
 import Inputs from './Inputs';
+import { CourseProvider } from 'app/CourseContext';
 
 const useSearchCards = () => {
   const [searchOrder, setSearchOrder] = useState([]);
+  const [count, setCount] = useState(null);
 
   const cards = useSelector(selectCards(searchOrder));
+  console.log('useSearchCArds::cards:', cards);
   const dispatch = useDispatch();
-  useEffect( () => {
+  const searchCards = useCallback( searchParams => {
     const getCardsRequest = async () => {
-      const cardOrder = await dispatch(getCards());
-      setSearchOrder(cardOrder);
+      const { searchOrder, count } = await dispatch(getCards(searchParams));
+      setSearchOrder(searchOrder);
+      setCount(count);
     };
     getCardsRequest();
   }, [dispatch]);
 
-  return cards;
+  return [cards, count, searchCards];
 };
 
 const CardViewer = styled.div`
   display: flex;
-  background: #d8bc7a;
   height: 100%;
   
   & >:nth-child(1) {
+    padding: 20px;
     flex: 1;
   }
   
@@ -37,43 +40,107 @@ const CardViewer = styled.div`
 `;
 
 export default () => {
-  const cards = useSearchCards();
-  //const { courseId } = useParams();
-  //console.log('courseId:', courseId);
+  const [cards, count, searchCards] = useSearchCards();
 
-  // State -> UI display
-  // - excludeUserTags:
-  // - excludeCourseTags:
-  // - includeUserTags
-  // - includeCourseTags
-  // - reviewDateMode: Before/After/All <-- For now, just do Before/All. Which will be displayed in UI as single
-  //   checkbox 'needs reviewing'
-  // - Sorting - Review Date (UserCardStats), primary_index, secondary_index
+  const [page, setPage] = useState(1);
 
-  // Phase 2: Just includeUserTags, sorting, and 'show ignored' checkbox (which will essentially be the precursor
-  // to the exclude checkbox table). Manually enter user tags in mongo for now, since no create tag fnality.
-  // !!!!!! KODANSHA TAG IS A COURSE TAG. FUCK. WILL NEED TO IMPLEMENT COURSE TAGS NOW. Or shall I even bother?
-  // This will require all of that outer join stuff on the BE too. Maybe I will leave tagging for phase 3 or 4...
-  // shit wait, i'm gonna hvae to do the outer join stuff either way cos of the ignore tag, and sorting on primary/
-  // secondary/tertiary indexes. Ugh. Just do the outer join stuff now, then see if I will bother with tag stuff.
-  // (though it'll be just course tags now, which will also need manually adding to 'course'). Can hardly see the
-  // point tbh until the whole of tagging is implemented.
+  //TODO: const [includeUserTags, setIncludeUserTags] = useState([]);
+  const [excludeUserTags, setExcludeUserTags] = useState(['ignore']);
+  const [includeCourseTags, setIncludeCourseTags] = useState([]);
+  //TODO: const [excludeCourseTags, setExcludeCourseTags] = useState([]);
 
-  // Phase 3: Ability to create new tags, and add or remove tags. Course level tags.
+  const [sortField, setSortField] = useState('review_date');
+  const [sortMode, setSortMode] = useState(1);
+  const [reviewDateMode, setReviewDateMode] = useState('BEFORE');
 
-  // Phase 4: Exclude tags++
+  const apply = useCallback(() => {
+    console.log('called.')
+    searchCards({
+      excludeUserTags,
+      //excludeCourseTags,
+      //includeUserTags,
+      includeCourseTags,
+      reviewDateMode,
+      sortField,
+      sortMode,
+    });
+    setPage(1);
+  }, [excludeUserTags, includeCourseTags, reviewDateMode, sortField, sortMode]);
 
-  // To implement the include/exclude and course/user stuff... either 2 separate exclude + include tables, segmented
-  // by course/user, or a single table (Again segmented by user/course), with some sort of '3 way check' widget.
+  const onSelectLearn = useCallback(() => {
+    const newExcludeUserTags = ['ignore'];
+    const newIncludeCourseTags = [];
+    const newSortField = 'primary_index';
+    const newSortMode = 1;
+    const newReviewDateMode = 'UNLEARNT';
 
-  // Once you're on a course page, just default the query params. There is no 'routing' necessary here.
-  // You are not on a different 'page' at any point. The All/Review/Learn queries are just short cuts.
+    setExcludeUserTags(newExcludeUserTags);
+    setIncludeCourseTags(newIncludeCourseTags);
+    setSortField(newSortField);
+    setSortMode(newSortMode);
+    setReviewDateMode(newReviewDateMode);
 
-  //TODO Phase 4 query sharing: 'Share query with friend', or adding abilit yto save queries on the course level.
+    searchCards({
+      excludeUserTags: newExcludeUserTags,
+      includeCourseTags: newIncludeCourseTags,
+      reviewDateMode: newReviewDateMode,
+      sortField: newSortField,
+      sortMode: newSortMode,
+    });
+  }, [apply]);
+
+  const onSelectReview = useCallback(() => {
+    const newExcludeUserTags = ['ignore'];
+    const newIncludeCourseTags = [];
+    const newSortField = 'review_date';
+    const newSortMode = 1;
+    const newReviewDateMode = 'BEFORE';
+
+    setExcludeUserTags(newExcludeUserTags);
+    setIncludeCourseTags(newIncludeCourseTags);
+    setSortField(newSortField);
+    setSortMode(newSortMode);
+    setReviewDateMode(newReviewDateMode);
+
+    searchCards({
+      excludeUserTags: newExcludeUserTags,
+      includeCourseTags: newIncludeCourseTags,
+      reviewDateMode: newReviewDateMode,
+      sortField: newSortField,
+      sortMode: newSortMode,
+    });
+  }, [apply]);
+
+  useEffect(() => {
+    apply();
+  }, []);
+
+  const cardSlice = cards.slice(0, 50*page);
   return (
-    <CardViewer>
-      <Inputs />
-      <CardTable cards={cards} />
-    </CardViewer>
+    <CourseProvider>
+      <CardViewer>
+        <div>
+          <Inputs
+            onApply={apply}
+            {...{
+              excludeUserTags,
+              includeCourseTags,
+              reviewDateMode,
+              sortField,
+              sortMode,
+              setExcludeUserTags,
+              setIncludeCourseTags,
+              setReviewDateMode,
+              setSortField,
+              setSortMode,
+            }}
+          />
+          <hr />
+          <button onClick={onSelectReview}>Review</button>
+          <button onClick={onSelectLearn}>Learn</button>
+        </div>
+        <CardTable cards={cardSlice} count={count} onLoadMore={() => setPage(page+1)} />
+      </CardViewer>
+    </CourseProvider>
   );
 };

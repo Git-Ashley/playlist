@@ -17,7 +17,7 @@ const UserSchema = new Schema({
       },
       {
         denomination: 'hour',
-        value: 6,
+        value: 4,
       },
       {
         denomination: 'day',
@@ -33,19 +33,19 @@ const UserSchema = new Schema({
       },
       {
         denomination: 'day',
-        value: 20,
+        value: 15,
       },
       {
         denomination: 'day',
-        value: 50,
+        value: 30,
       },
       {
         denomination: 'day',
-        value: 100,
+        value: 60,
       },
       {
         denomination: 'day',
-        value: 180,
+        value: 120,
       }
     ]
   }
@@ -56,3 +56,20 @@ UserSchema.methods.getId = function(){
 };
 
 module.exports = User = mongoose.model('user', UserSchema);
+
+/*
+  const user = await User.findOne({ username: 'rooster356'});
+  console.log('userL', JSON.stringify(user));
+
+  const course = await Course.findOne({ title: 'Kanji 2500'});
+  console.log('course:', JSON.stringify(course));
+
+  user.courses = {
+    [course._id]: {
+      tags: [], // list of user defined tags for this course and user
+      join_date: new Date()
+    }
+  };
+
+  const newUser = await user.save();
+ */

@@ -2,49 +2,173 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const moment = require('moment');
+const mongoose = require('mongoose');
 
 const Card = require('./models/card-course-model/card');
 const User = require('./models/card-course-model/user');
 const UserCardStats = require('./models/card-course-model/user-card-stats');
 const Mem = require('./models/card-course-model/mem');
+const Course = require('./models/card-course-model/course');
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
-// Utils
-const getUserFormattedCard = (defaultLevels, card, cardStats = {}) => {
-  const userCard = Card.attrs.reduce((accum, attr) => {
-    accum[attr] = card[attr];
-    return accum;
-  }, {});
-
-  UserCardStats.attrs.forEach((attr) => {
-    if (['level'].includes(attr)) {
-      const level = Math.floor(cardStats[attr]/defaultLevels.length);
-      userCard[attr] = level;
-      return;
-    }
-    userCard[attr] = cardStats[attr];
-  });
-
-  userCard.id = card.id;
-  delete userCard.course_id;
-  delete userCard.user_id;
-  delete userCard.card_id;
-
-  return userCard;
+const userCardProjectionExclude = {
+  'card_id': 0,
+  'user_id': 0,
+  'course_id': 0,
+  '__v': 0
 };
 
-const combineStatsWithCards = async (userCardStats, defaultLevels) => {
-  // use outer joins @ later date
-  const cardIds = userCardStats.map(item => item.card_id);
+const limitAndFormatStatsWithCards = () => [
+  {
+    '$replaceRoot': {
+      'newRoot': {
+        '$mergeObjects': [// The order of this array is important - do not change
+          '$$ROOT', {
+            '$arrayElemAt': [
+              '$card', 0
+            ]
+          }
+        ]
+      }
+    }
+  }, {
+    '$project': {
+      'card': 0,
+      ...userCardProjectionExclude
+    }
+  }
+];
 
-  const cards = await Card.where('_id').in(cardIds);
-  // Could create id -> card map, but it will be less efficient for small number of userCardStats.
-
-  return userCardStats.map(stats => {
-    const card = cards.find(card => card._id.toString() === stats.card_id.toString());
-    return getUserFormattedCard(defaultLevels, card, stats);
+const getStatsWithCards = (query, sort) => {
+  const statsQuery = {};
+  UserCardStats.attrs.forEach(key => {
+    if (query[key] !== undefined) {
+      statsQuery[key] = query[key];
+    }
   });
+
+  const cardQuery = {};
+  Card.attrs.forEach(key => {
+    if (query[key] !== undefined) {
+      cardQuery[`card.0.${key}`] = query[key];
+    }
+  });
+
+  return UserCardStats.aggregate([
+    {
+      '$match': statsQuery
+    }, {
+      '$sort': sort,
+    }, {
+      '$lookup': {
+        'from': 'cards',
+        'localField': 'card_id',
+        'foreignField': '_id',
+        'as': 'card'
+      }
+    }, { // Possibly more performant sticking this in $lookup.pipeline like in getCardsWithStats?
+      '$match': cardQuery
+    }, {
+      '$facet': {
+        count:  [{ '$count': "count" }],
+        data: limitAndFormatStatsWithCards()
+      }
+    },
+  ]);
+};
+
+const getSliceAndFormatCardsWithStats = () => [
+  {
+    '$project': {
+      'user_stats': 0,
+      ...userCardProjectionExclude
+    }
+  },
+];
+
+const getCardsWithStats = (query, sort) => {
+  const sortField = Object.keys(sort)[0];
+
+  const statsQuery = {};
+  UserCardStats.attrs.forEach(key => {
+    if (query[key] !== undefined) {
+      statsQuery[key] = query[key];
+    }
+  });
+  delete statsQuery.user_id;
+  delete statsQuery.course_id;
+
+  const cardQuery = {};
+  Card.attrs.forEach(key => {
+    if (query[key] !== undefined) {
+      cardQuery[key] = query[key];
+    }
+  });
+
+  return Card.aggregate([
+    {
+      '$match': cardQuery
+    }, {
+      '$project': {
+        ...Card.attrs.reduce((accum, key) => {
+          accum[key] = 1;
+          return accum;
+        }, {}),
+        [sortField]: { $ifNull: [ `$${sortField}`, 99999 ] },
+      }
+    },
+    {
+      '$sort': sort,
+    }, {
+      '$lookup': {
+        'from': 'usercardstats',
+        'let': {
+          'cardid': '$_id'
+        },
+        'pipeline': [
+          {
+            '$match': {
+              '$expr': {
+                '$eq': [
+                  '$card_id', '$$cardid'
+                ]
+              },
+              user_id: query.user_id
+            }
+          }
+        ],
+        'as': 'user_stats'
+      }
+    }, {
+      '$replaceRoot': {
+        'newRoot': {
+          '$mergeObjects': [
+            {
+              '$arrayElemAt': [
+                '$user_stats', 0
+              ]
+            }, '$$ROOT'
+          ]
+        }
+      }
+    }, {
+      '$match': statsQuery
+    }, {
+      '$facet': {
+        count:  [{ '$count': "count" }],
+        data: getSliceAndFormatCardsWithStats()
+      }
+    },
+  ]);
+};
+
+const getCards = (query, sort = { primary_index: 1 }) => {
+  if (UserCardStats.attrs.includes(Object.keys(sort)[0])) {
+    return getStatsWithCards(query, sort);
+  } else if (Card.attrs.includes(Object.keys(sort)[0])) {
+    return getCardsWithStats(query, sort);
+  }
 };
 
 // Routes
@@ -119,40 +243,55 @@ router.post('/cards/search', async (req, res) => {
   const userId = req.user.id;
   const courseId = req.courseId;
 
-  const excludeUserTags = req.body.excludeUserTags;
-  const excludeCourseTags = req.body.excludeCourseTags;
-  const includeUserTags = req.body.includeUserTags;
-  const includeCourseTags = req.body.incudeCourseTags;
-  const includeTagsMode = 'UNION';
-  const reviewDateMode = 'BEFORE';
+  const excludeUserTags = req.body.excludeUserTags || [];
+  const excludeCourseTags = req.body.excludeCourseTags || [];
+  const includeUserTags = req.body.includeUserTags || [];
+  const includeCourseTags = req.body.includeCourseTags || [];
+  const reviewDateMode = req.body.reviewDateMode;
+  //const includeTagsMode = 'UNION';
+  const sortField = req.body.sortField || 'primary_index';
+  const sortMode = req.body.sortMode || 1;
 
-  const sortBy = 'review_date';
-  const sortMode = 'asc';
+  const sort = { [sortField]: sortMode };
 
   /**
    * For queries that involve both CARD and STATS, see https://docs.mongodb.com/manual/reference/database-references/
    */
   const query = {
-    user_id: userId,
+    user_id: mongoose.Types.ObjectId(userId),
+    tags: { $nin: excludeUserTags },
+    course_tags: { $nin: excludeCourseTags },
   };
+
+  if (includeUserTags.length) {
+    query.tags.$in = includeUserTags;
+  }
+
+  if (includeCourseTags.length) {
+    query.course_tags.$in = includeCourseTags;
+  }
 
   if (reviewDateMode === 'BEFORE') {
     query.review_date = { $lte: new Date() };
   } else if (reviewDateMode === 'AFTER') {
     query.review_date = { $gte: new Date() };
+  } else if (reviewDateMode === 'UNLEARNT') { // i.e. unlearnt
+    query.review_date = null;
   }
 
-  if (excludeUserTags && excludeUserTags.length) {
-    query.tags = { $nin: excludeUserTags };
-  }
+  const userCards = await getCards(query, sort);
+  const data = userCards[0].data;
+  const count = userCards[0].count[0].count;
 
-  console.log('query.tags:', query.tags);
+  // Temporary, until the stupid review_date/level system is changed.
+  data.forEach(userCard => {
+    userCard.level = Math.floor(userCard.level/req.user.default_levels.length);
+  });
 
-  const userCardStatsList = await UserCardStats.find(query).sort({ [sortBy]: sortMode });
-
-  const userCards = await combineStatsWithCards(userCardStatsList, req.user.default_levels);
-
-  res.json(userCards);
+  res.json({
+    data,
+    count,
+  });
 });
 
 router.post('/card/:cardId/review', async (req, res) => {
@@ -188,38 +327,32 @@ router.post('/card/:cardId/review', async (req, res) => {
     });
   }
 
-  return res.json({ error: 'Opps! Something went wrong! Please contact support at /dev/null@idgaf.co.uk'});
+  return res.json({ error: 'Oops! Something went wrong! Please contact support at support@/dev/null'});
 });
 
-//TODO /cards/search add params: courseId, userId, tags, sort order
-router.get('/cards-old', async (req, res) => {
-  const userId = req.user.id;
-  //const cards = await Card.find({ secondary_index: { $exists: true } }).limit(20);
-  const cards = await Card.find();
-  const cardsMap = cards.reduce((accum, card) => {
-    accum[card.id] = card;
-    return accum;
-  }, {});
-
-  const userCardIds = cards.map(card => ({ user_id: userId, card_id: card.id }));
-
-  const userCardStatsList = await UserCardStats.find({ $or: userCardIds });
-
-
-  const userCards = [];
-
-  for (const cardStats of userCardStatsList) {
-    const card = cardsMap[cardStats.card_id];
-    userCards.push(getUserFormattedCard(card, cardStats));
-  }
-
-  res.json(userCards);
+router.get('/course/:courseId', async (req, res) => {
+  const courseId = req.params.courseId;
+  const course = await Course.findOne(
+    { _id: mongoose.Types.ObjectId(courseId) },
+    { __v: 0 },
+  );
+  res.json(course);
 });
 
 router.post('/login', (req, res) => {
-  User.findOne({ username : req.body.username }).then(user => res.json(user));
+  User.findOne({ username : req.body.username }).then((user) => res.json(user));
 });
 
+const combineCardAndStats = (card, stats = { _doc: {} }, user) => {
+  const userCard = { ...stats._doc, ...card._doc };
+  Object.keys(userCardProjectionExclude).forEach(field => {
+    delete userCard[field];
+  });
+
+  userCard.level = Math.floor(userCard.level/user.default_levels.length);
+
+  return userCard;
+};
 router.post('/card/:cardId/update', async (req, res) => {
   //TODO if (level !== 0) { calculate review_date }
   const userId = req.user.id;
@@ -240,23 +373,50 @@ router.post('/card/:cardId/update', async (req, res) => {
   const userCardInfo = await UserCardStats.findOneAndUpdate(
     {
       user_id: userId,
+      //course_id,
       card_id: cardId,
     },
     updates,
     {
       new: true,
-      upsert: true, // Make this update into an upsert
+      upsert: true,
     }
   );
 
-  const newCardInfo = await userCardInfo.save();
+  const card = await Card.findOne({ _id: userCardInfo.card_id });
 
-  const userCards = await combineStatsWithCards([newCardInfo], req.user.default_levels);
+  const userCard = combineCardAndStats(card, userCardInfo, req.user);
 
-  res.json(userCards[0]);
+  res.json(userCard);
+});
+
+router.post('/card/:cardId/blueprint', async (req, res) => {
+  const newDef = req.body.definition;
+  const userId = req.user.id;
+  const courseId = req.courseId;
+  const cardId = req.params.cardId;
+
+  const updatedCard = await Card.findOneAndUpdate(
+    { _id: cardId },
+    { definition: newDef },
+    { new: true },
+  );
+
+  const userStats = await UserCardStats.findOne({
+    user_id: userId,
+    //course_id: courseId,
+    card_id: cardId,
+  });
+
+  const userCard = combineCardAndStats(updatedCard, userStats, req.user);
+
+  res.json(userCard);
 });
 
 module.exports = router;
+
+
+// $lookup?
 
 
 /**

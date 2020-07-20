@@ -7,9 +7,11 @@ const apiRoutes = {
   login: () => '/login',
   updateCard: cardId => `/card/${cardId}/update`,
   reviewCard: cardId => `/card/${cardId}/review`,
+  updateBlueprint: cardId => `/card/${cardId}/blueprint`,
   mems: () => '/mems',
   addMem: () => '/mem/add',
-  deleteMem: () => `/mem/delete`,
+  deleteMem: () => '/mem/delete',
+  course: (courseId) => `/course/${courseId}`,
 };
 
 const derivedApiRoutes = Object.entries(apiRoutes).reduce((accum, [key, fn]) => {

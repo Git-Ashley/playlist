@@ -57,8 +57,6 @@ const NewMem = ({ cardId }) => {
     setText('');
   };
 
-  //TODO
-  // Extremely simple temporary input.
   return <NewMemContainer>
     <input placeholder='New mem' type='text' value={text} onChange={e => setText(e.target.value)} />
     <button onClick={onSubmitNewMem}>+</button>
@@ -104,7 +102,7 @@ export default ({ card }) => {
   const dispatch = useDispatch();
   const [fetchMems, mems, isFetchingMems] = useFetch(apiRoutes.mems());
 
-  const deleteMemHandler = (id) => dispatch(deleteMem(id, card.id));
+  const deleteMemHandler = (id) => dispatch(deleteMem(id, card._id));
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -118,7 +116,7 @@ export default ({ card }) => {
   }
 
   if (!mems || !mems.length) {
-    return <NewMem cardId={card.id} />;
+    return <NewMem cardId={card._id} />;
   }
   return <MemsContainer>
     {mems.map(mem =>
@@ -129,6 +127,6 @@ export default ({ card }) => {
         isSelected={card.selected_mem === mem.id}
       />
     )}
-    <NewMem cardId={card.id} />
+    <NewMem cardId={card._id} />
   </MemsContainer>;
 }

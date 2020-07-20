@@ -8,6 +8,16 @@ import { UserProvider } from 'app/UserContext';
 
 const AppContainer = styled.div`
   height: 100%;
+  background: #d8bc7a;
+`;
+
+const AppHeader = styled.div`
+  height: 50px;
+  background: #caaf70;
+`;
+
+const AppContent = styled.div`
+  height: calc(100% - 50px);
 `;
 
 export default () => {
@@ -23,13 +33,15 @@ export default () => {
     <AppContainer>
       <BrowserRouter>
         <UserProvider user={user}>
-          <div>App Header</div>
-          <Switch>
-            <Route path="/course/:courseId">
-              <Course />
-            </Route>
-            <Redirect to="/course/5ebc9e10f8144bff47de9cc8" />
-          </Switch>
+          <AppHeader>App Header</AppHeader>
+          <AppContent>
+            <Switch>
+              <Route path="/course/:courseId">
+                <Course />
+              </Route>
+              <Redirect to="/course/5ebc9e10f8144bff47de9cc8" />
+            </Switch>
+          </AppContent>
         </UserProvider>
       </BrowserRouter>
     </AppContainer>

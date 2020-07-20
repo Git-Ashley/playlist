@@ -9,7 +9,7 @@ export const cardsSlice = createSlice({
     setCards: (state, action) => action.payload,
     setCard: (state, action) => {
       const updatedCard = action.payload;
-      state[updatedCard.id] = updatedCard;
+      state[updatedCard._id] = updatedCard;
     },
     setMems: (state, action) => {
       const { updatedMems, cardId } = action.payload;
@@ -24,22 +24,22 @@ export const cardsSlice = createSlice({
 
 const sliceActions = cardsSlice.actions;
 
-export const getCards = () => async (dispatch) => {
-  const cards = await apiFetch(apiRoutes.cardsSearch(), { excludeUserTags: ['ignore'] }, { method: 'POST' });
+export const getCards = searchParams => async (dispatch) => {
+  const { data, count } = await apiFetch(apiRoutes.cardsSearch(), searchParams, { method: 'POST' });
 
-  const cardsOrder = cards.map(card => card.id);
-  const cardsMap = cards.reduce((accum, card) => {
-    accum[card.id] = card;
+  const cardsOrder = data.map(card => card._id);
+  const cardsMap = data.reduce((accum, card) => {
+    accum[card._id] = card;
     return accum;
   }, {});
 
   dispatch(sliceActions.setCards(cardsMap));
 
-  return cardsOrder;
+  return { searchOrder: cardsOrder, count };
 };
 
 export const updateCard = (cardId, updates) => dispatch => {
-  return apiFetch(`/api/card/${cardId}/update`, updates)
+  return apiFetch(apiRoutes.updateCard(cardId), updates)
     .then(card => {
       console.log(card);
       return dispatch(sliceActions.setCard(card));
@@ -47,7 +47,14 @@ export const updateCard = (cardId, updates) => dispatch => {
     .catch(console.log);
 };
 
-//TODO export const updateBlueprint
+export const updateBlueprint = (cardId, updates) => dispatch => {
+  return apiFetch(apiRoutes.updateBlueprint(cardId), updates)
+    .then(card => {
+      console.log('blueprint updated:', card);
+      return dispatch(sliceActions.setCard(card));
+    })
+    .catch(console.log);
+};
 
 export const ignoreCard = cardId => (dispatch, getState) => {
   const state = getState();

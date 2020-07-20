@@ -14,11 +14,13 @@ const Controls = ({ card }) => {
   const user = useUser();
   const dispatch = useDispatch();
 
+  console.log('CardReviewActions::user:', user);
+
   const levels = user.default_levels;
   const currentLevel = card.level;
 
-  const onReviewFinish = (level) => dispatch(reviewCard(card.id, level));
-  const onIgnoreCard = () => dispatch(ignoreCard(card.id));
+  const onReviewFinish = (level) => dispatch(reviewCard(card._id, level));
+  const onIgnoreCard = () => dispatch(ignoreCard(card._id));
 
   return (
     <ControlsContainer>
