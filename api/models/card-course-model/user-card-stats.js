@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const attrs = {
   user_id: { type: Schema.Types.ObjectId, required: true },
+  course_id: { type: Schema.Types.ObjectId, required: false },
   card_id: { type: Schema.Types.ObjectId, required: true },
   selected_mem: { type: Schema.Types.ObjectId },
   level: Number,
@@ -13,12 +14,11 @@ const attrs = {
 const UserCardStatsSchema = new Schema(attrs);
 
 UserCardStatsSchema.index(
-  { user_id: 1, card_id: 1 },
+  { user_id: 1, course_id: 1, card_id: 1 },
   { unique: true },
 );
-UserCardStatsSchema.index({ level: 1 }, { sparse: true });
-UserCardStatsSchema.index({ tags: 1 }, { sparse: true });
-UserCardStatsSchema.index({ review_date: 1 }, { sparse: true });
+UserCardStatsSchema.index({ user_id: 1, course_id: 1, tags: 1 }, { sparse: true });
+UserCardStatsSchema.index({ user_id: 1, course_id: 1, review_date: 1 }, { sparse: true });
 
 module.exports = Mem = mongoose.model('userCardStats', UserCardStatsSchema);
 module.exports.attrs = Object.keys(attrs);

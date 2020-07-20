@@ -259,6 +259,7 @@ router.post('/cards/search', async (req, res) => {
    */
   const query = {
     user_id: mongoose.Types.ObjectId(userId),
+    course_id: mongoose.Types.ObjectId(courseId),
     tags: { $nin: excludeUserTags },
     course_tags: { $nin: excludeCourseTags },
   };
@@ -297,6 +298,7 @@ router.post('/cards/search', async (req, res) => {
 router.post('/card/:cardId/review', async (req, res) => {
   const user = req.user;
   const cardId = req.params.cardId;
+  const courseId = req.courseId;
   const level = req.body.level;
   const { denomination, value } = user.default_levels[level];
   const updates = {};
@@ -311,6 +313,7 @@ router.post('/card/:cardId/review', async (req, res) => {
     const userCardInfo = await UserCardStats.findOneAndUpdate(
       {
         user_id: user.id,
+        course_id: courseId,
         card_id: cardId,
       },
       updates,
@@ -357,6 +360,7 @@ router.post('/card/:cardId/update', async (req, res) => {
   //TODO if (level !== 0) { calculate review_date }
   const userId = req.user.id;
   const cardId = req.params.cardId;
+  const courseId = req.courseId;
 
   const updates = {};
   const tags = req.body.tags;
@@ -373,7 +377,7 @@ router.post('/card/:cardId/update', async (req, res) => {
   const userCardInfo = await UserCardStats.findOneAndUpdate(
     {
       user_id: userId,
-      //course_id,
+      course_id: courseId,
       card_id: cardId,
     },
     updates,
@@ -404,7 +408,7 @@ router.post('/card/:cardId/blueprint', async (req, res) => {
 
   const userStats = await UserCardStats.findOne({
     user_id: userId,
-    //course_id: courseId,
+    course_id: courseId,
     card_id: cardId,
   });
 
