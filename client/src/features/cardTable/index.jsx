@@ -6,27 +6,35 @@ import Mems from './Mems';
 import EditableText from 'components/EditableText';
 import { updateBlueprint } from 'data/cardsSlice';
 
-const CardTable = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  overflow-y: scroll;
-`;
-
 const CardRowContainer = styled.div`
   background-color: ${props => props.ignored ? '#e4955b' : 'inherit'};
   border-bottom: 1px solid black;
   border-right: 1px solid black;
-  margin: 10px 0 10px;
-  
+  margin: 10px 0;
   display: grid;
-  grid-template-columns: 20px 100px 200px 200px fit-content(200px) fit-content(200px);
+  
+  width: 100%;
+  grid-template-columns: ;
   grid-template-rows: auto;
   grid-template-areas:
-    "index value definition review_date controls mems"
-    "index value definition primary_index controls mems"
-    "index value definition secondary_index controls mems";
+    "index"
+    "value"
+    "definition"
+    "primary_index"
+    "secondary_index"
+    "review_date"
+    "controls"
+    "mems";
+      
+  @media screen and (min-width: 992px) {
+    grid-template-columns: 20px 100px 200px 200px fit-content(200px) fit-content(200px);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "index value definition review_date controls mems"
+      "index value definition primary_index controls mems"
+      "index value definition secondary_index controls mems";
+    width: auto;
+  }
 
   & > * {
     display: flex;
@@ -35,6 +43,7 @@ const CardRowContainer = styled.div`
     align-items: center;
     border-top: 1px solid black;
     border-left: 1px solid black;
+    padding: 5px;
   }
   
   & >:nth-child(1) {
@@ -48,7 +57,9 @@ const CardRowContainer = styled.div`
   
   & >:nth-child(3) {
     grid-area: definition;
-    padding: 30px;
+    @media screen and (min-width: 992px) {
+      padding: 30px;
+    }
   }
   
   & >:nth-child(4) {
@@ -91,7 +102,6 @@ const CardRow = ({ card, i }) => {
           text={card.definition}
           onUpdate={newDefinition => onUpdateBlueprint({ definition: newDefinition })}
           enableEdit
-          editOnHover
         />
       ) : (
         <div>
@@ -114,18 +124,33 @@ const CardRow = ({ card, i }) => {
 const CardTableContainer = styled.div`
     display: flex;
     flex-direction: column;
+    align-items: center;
+    overflow-y: scroll;
+    padding: 0 20px 20px;
 `;
 
-export default ({ cards, onLoadMore, count }) => console.log('cards:', cards) || (
+const TableHeader = styled.div`
+  @media screen and (min-width: 992px) {
+    position: sticky;
+    top: 0;
+  }
+  height: 20px;
+  width: 100%;
+  background-color: rgb(222, 192, 135);
+`;
+
+export default ({ cards, onLoadMore, onSelectReview, onSelectLearn, count }) => (
   <CardTableContainer>
-    <div style={{textAlign: 'center'}}>{count} cards</div>
-    <CardTable>
-      {cards.map((card, i) => <CardRow i={i} key={card._id} card={card} />)}
-      {!cards.length ? (
-        <div>No results</div>
-      ) : (
-          <div><button type="button" onClick={onLoadMore}>Load more...</button></div>
-      )}
-    </CardTable>
+      <TableHeader style={{textAlign: 'center'}}>
+        <button onClick={onSelectLearn}>Learn</button>
+        <button onClick={onSelectReview}>Review</button>
+        <span>{count} cards</span>
+      </TableHeader>
+    {cards.map((card, i) => <CardRow i={i} key={card._id} card={card} />)}
+    {!cards.length ? (
+      <div>No results</div>
+    ) : (
+        <div><button type="button" onClick={onLoadMore}>Load more...</button></div>
+    )}
   </CardTableContainer>
 );

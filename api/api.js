@@ -282,7 +282,7 @@ router.post('/cards/search', async (req, res) => {
 
   const userCards = await getCards(query, sort);
   const data = userCards[0].data;
-  const count = userCards[0].count[0].count;
+  const count = userCards[0].count[0] && userCards[0].count[0].count;
 
   // Temporary, until the stupid review_date/level system is changed.
   data.forEach(userCard => {
@@ -294,6 +294,26 @@ router.post('/cards/search', async (req, res) => {
     count,
   });
 });
+
+router.get('/course/:courseId', async (req, res) => {
+  const courseId = req.params.courseId;
+  const course = await Course.findOne(
+      { _id: mongoose.Types.ObjectId(courseId) },
+      { __v: 0 },
+  );
+  res.json(course);
+});
+
+const combineCardAndStats = (card, stats = { _doc: {} }, user) => {
+  const userCard = { ...stats._doc, ...card._doc };
+  Object.keys(userCardProjectionExclude).forEach(field => {
+    delete userCard[field];
+  });
+
+  userCard.level = Math.floor(userCard.level/user.default_levels.length);
+
+  return userCard;
+};
 
 router.post('/card/:cardId/review', async (req, res) => {
   const user = req.user;
@@ -323,39 +343,20 @@ router.post('/card/:cardId/review', async (req, res) => {
       }
     );
 
-    const newCardInfo = await userCardInfo.save();
+    const card = await Card.findOne({ _id: userCardInfo.card_id });
 
-    return res.json({
-      review_date: newCardInfo.review_date,
-    });
+    const userCard = combineCardAndStats(card, userCardInfo, req.user);
+
+    res.json(userCard);
   }
 
   return res.json({ error: 'Oops! Something went wrong! Please contact support at support@/dev/null'});
-});
-
-router.get('/course/:courseId', async (req, res) => {
-  const courseId = req.params.courseId;
-  const course = await Course.findOne(
-    { _id: mongoose.Types.ObjectId(courseId) },
-    { __v: 0 },
-  );
-  res.json(course);
 });
 
 router.post('/login', (req, res) => {
   User.findOne({ username : req.body.username }).then((user) => res.json(user));
 });
 
-const combineCardAndStats = (card, stats = { _doc: {} }, user) => {
-  const userCard = { ...stats._doc, ...card._doc };
-  Object.keys(userCardProjectionExclude).forEach(field => {
-    delete userCard[field];
-  });
-
-  userCard.level = Math.floor(userCard.level/user.default_levels.length);
-
-  return userCard;
-};
 router.post('/card/:cardId/update', async (req, res) => {
   //TODO if (level !== 0) { calculate review_date }
   const userId = req.user.id;

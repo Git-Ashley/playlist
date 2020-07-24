@@ -68,7 +68,11 @@ export const ignoreCard = cardId => (dispatch, getState) => {
 
 export const reviewCard = (cardId, level) => dispatch => {
   apiFetch(apiRoutes.reviewCard(cardId), { level })
-    .then(console.log);
+    .then(card => {
+      console.log(card);
+      return dispatch(sliceActions.setCard(card));
+    })
+    .catch(console.log);
 };
 
 export const addMem = (text, cardId) => dispatch => {

@@ -11,7 +11,6 @@ const useSearchCards = () => {
   const [count, setCount] = useState(null);
 
   const cards = useSelector(selectCards(searchOrder));
-  console.log('useSearchCArds::cards:', cards);
   const dispatch = useDispatch();
   const searchCards = useCallback( searchParams => {
     const getCardsRequest = async () => {
@@ -32,6 +31,11 @@ const CardViewer = styled.div`
   & >:nth-child(1) {
     padding: 20px;
     flex: 1;
+    display: none;
+    
+    @media screen and (min-width: 992px) {
+      display: block;
+    }
   }
   
   & >:nth-child(2) {
@@ -54,7 +58,7 @@ export default () => {
   const [reviewDateMode, setReviewDateMode] = useState('BEFORE');
 
   const apply = useCallback(() => {
-    console.log('called.')
+    console.log('called.');
     searchCards({
       excludeUserTags,
       //excludeCourseTags,
@@ -135,11 +139,14 @@ export default () => {
               setSortMode,
             }}
           />
-          <hr />
-          <button onClick={onSelectReview}>Review</button>
-          <button onClick={onSelectLearn}>Learn</button>
         </div>
-        <CardTable cards={cardSlice} count={count} onLoadMore={() => setPage(page+1)} />
+        <CardTable
+          onSelectLearn={onSelectLearn}
+          onSelectReview={onSelectReview}
+          cards={cardSlice}
+          count={count}
+          onLoadMore={() => setPage(page+1)}
+        />
       </CardViewer>
     </CourseProvider>
   );

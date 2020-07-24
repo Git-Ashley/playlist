@@ -14,8 +14,6 @@ const Controls = ({ card }) => {
   const user = useUser();
   const dispatch = useDispatch();
 
-  console.log('CardReviewActions::user:', user);
-
   const levels = user.default_levels;
   const currentLevel = card.level;
 
@@ -26,9 +24,9 @@ const Controls = ({ card }) => {
     <ControlsContainer>
       {levels.map(({ denomination, value }, i) => (
         <button
-          key={denomination+value}
+          key={String(value)+denomination}
           onClick={() => onReviewFinish(i)}
-          style={{backgroundColor: i === currentLevel ? 'green' : 'auto'}}
+          style={{backgroundColor: i === currentLevel ? 'green' : ''}}
         >
           {`${value} ${denomination}`}
         </button>

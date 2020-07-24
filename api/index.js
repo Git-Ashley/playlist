@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 //const helmet = require('helmet');
 const MongoStore = require('connect-mongo')(session);
-const api = require('./api')
+const api = require('./api');
 
 const mongoUrl = 'mongodb://localhost:27017/docker-node-mongo';
 const PORT = 4435;
 
 mongoose
-    .connect(mongoUrl, { useNewUrlParser: true })
+    .connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB Connected'))
     .catch(console.log);
 

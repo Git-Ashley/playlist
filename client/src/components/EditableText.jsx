@@ -6,12 +6,22 @@ const StyledText = styled.div`
 `;
 
 const EditSymbol = styled.span`
+  ${({ editOnHover }) => editOnHover ? 'display: none;' : ''}
+  
+  @media screen and (min-width: 992px) {
+    display: inline;
+  }
+  
   height: 20px;
   width: 20px;
   border: 1px solid black;
   border-radius: 5px;
   &:before {
-    content: 'E';
+    content: '✎';
+    font-size: 24px;
+    position: absolute;
+    top: -2px;
+    right: 1px;
   }
   position: absolute;
   top: 4px;
@@ -28,7 +38,7 @@ const EditableDisplay = ({ onEdit, editOnHover, children }) => {
 
   return <EditableTextContainer onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
     {children}
-    {isHovered || !editOnHover ? <EditSymbol onClick={onEdit} /> : ''}
+    {isHovered || !editOnHover ? <EditSymbol editOnHover={editOnHover} onClick={onEdit} /> : ''}
   </EditableTextContainer>;
 };
 

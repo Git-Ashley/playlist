@@ -1,5 +1,5 @@
 /* eslint-disable-next-line react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import apiRoutes from 'app/apiRoutes';
 import useFetch from 'hooks/useFetch';
 import styled from 'styled-components';
@@ -46,11 +46,33 @@ const NewMemContainer = styled.div`
   & >:nth-child(2) {
     flex: 1;
   }
+  
+  & >:nth-child(3) {
+    flex: 1;
+  }
 `;
 
 const NewMem = ({ cardId }) => {
   const [text, setText] = useState('');
   const dispatch = useDispatch();
+  const [imgFile, setImgFile] = useState(null);
+
+  const handlePaste = useCallback(event => {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    console.log(JSON.stringify(items)); // will give you the mime types
+    for (let index in items) {
+      const item = items[index];
+      if (item.kind === 'file') {
+        const blob = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = e => {
+          const bytes = e.target.result;
+          setImgFile(bytes);
+        }; // data url!
+        reader.readAsDataURL(blob);
+      }
+    }
+  }, []);
 
   const onSubmitNewMem = () => {
     dispatch(addMem(text, cardId));
@@ -58,8 +80,23 @@ const NewMem = ({ cardId }) => {
   };
 
   return <NewMemContainer>
-    <input placeholder='New mem' type='text' value={text} onChange={e => setText(e.target.value)} />
-    <button onClick={onSubmitNewMem}>+</button>
+    {imgFile ? (
+      <img src={imgFile} />
+    ) : (
+      <input
+        placeholder='New mem'
+        type='text'
+        onPaste={handlePaste}
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+    )}
+    <button onClick={onSubmitNewMem}>✓</button>
+    {imgFile ? (
+      <button onClick={() => console.log('shell')}>🗛</button>
+    ) : (
+      <button onClick={() => console.log('shell')}>🖼</button>
+    )}
   </NewMemContainer>;
 };
 

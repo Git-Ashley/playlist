@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  api:
+    build: ./api
+    depends_on:
+      - db
+    ports:
+      - "4435"
+      - "4435:4435"
+    links:
+      - db
+
+  db:
+    container_name: memapp-test-1
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - type: volume
+        source: memapp-test-vol-3
+        target: /data/db
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile-dev
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - api
+
+volumes:
+  memapp-test-vol-3:
