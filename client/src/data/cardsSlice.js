@@ -75,9 +75,15 @@ export const reviewCard = (cardId, level) => dispatch => {
     .catch(console.log);
 };
 
-export const addMem = (text, cardId) => dispatch => {
-  console.log('adding mem:', text);
-  apiFetch(apiRoutes.addMem(), { text, cardId })
+export const addMem = (data, cardId, img = false) => dispatch => {
+  const payload = { cardId };
+  if (img) {
+    payload.imgData = data;
+  } else {
+    payload.text = data;
+  }
+
+  apiFetch(apiRoutes.addMem(), payload)
     .then(updatedMems => {
       dispatch(sliceActions.setMems({ updatedMems, cardId }));
     });

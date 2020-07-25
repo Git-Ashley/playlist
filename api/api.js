@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const moment = require('moment');
 const mongoose = require('mongoose');
+const superagent = require('superagent');
 
 const Card = require('./models/card-course-model/card');
 const User = require('./models/card-course-model/user');
@@ -175,7 +176,7 @@ const getCards = (query, sort = { primary_index: 1 }) => {
 const router = express.Router();
 
 router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
+router.use(bodyParser.json({ limit: '1mb' }));
 router.use(cookieParser());
 router.use((req, res, next) => {
   User.findOne({ username : 'rooster356' }).then(user => {
@@ -217,23 +218,46 @@ router.post('/mem/delete', async (req, res) => {
 
 router.post('/mem/add', async (req, res) => {
   const memText = req.body.text;
+  const imgData = req.body.imgData;
   const user = req.user;
   const author = user.username;
   const cardId = req.body.cardId;
 
-  const newMem = await Mem.create({
-    text: memText,
-    author,
-  });
+  let newMem;
 
-  const updatedCard = await Card.findOneAndUpdate(
-    { _id: cardId },
-    { $push: { mems: newMem.id } },
-    { new: true },
-  );
+  if (imgData) {
+    try {
+      const res = await superagent
+        .put('http://localhost:33404/memage/')
+        .send({ ...imgData });
+      const url = res.body.url;
+      console.log('url:', url);
+      newMem = await Mem.create({
+        imgUrl: url,
+        author,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  } else if (memText) {
+    newMem = await Mem.create({
+      text: memText,
+      author,
+    });
+  }
 
+  if (newMem) {
+    const updatedCard = await Card.findOneAndUpdate(
+        {_id: cardId},
+        {$push: {mems: newMem.id}},
+        {new: true},
+    );
 
-  res.json(updatedCard.mems);
+    res.json(updatedCard.mems);
+  } else {
+    res.status(400);
+    res.send('Error :(');
+  }
 });
 
 /**

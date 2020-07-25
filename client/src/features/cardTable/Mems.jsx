@@ -64,10 +64,14 @@ const NewMem = ({ cardId }) => {
       const item = items[index];
       if (item.kind === 'file') {
         const blob = item.getAsFile();
+        const [type, ext] = blob.type.split('/');
+        if (type !== 'image' || !['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+          continue;
+        }
         const reader = new FileReader();
         reader.onload = e => {
-          const bytes = e.target.result;
-          setImgFile(bytes);
+          const data = e.target.result;
+          setImgFile({ data, type: ext });
         }; // data url!
         reader.readAsDataURL(blob);
       }
@@ -75,13 +79,18 @@ const NewMem = ({ cardId }) => {
   }, []);
 
   const onSubmitNewMem = () => {
-    dispatch(addMem(text, cardId));
+    if (imgFile) {
+      dispatch(addMem(imgFile, cardId, true));
+    } else {
+      dispatch(addMem(text, cardId));
+    }
     setText('');
+    setImgFile(null);
   };
 
   return <NewMemContainer>
     {imgFile ? (
-      <img src={imgFile} />
+      <img src={imgFile.data} />
     ) : (
       <input
         placeholder='New mem'
@@ -125,12 +134,9 @@ const DeleteSymbol = styled.span`
 `;
 
 const MemPill = ({ mem, isSelected = false, onDelete }) => <StyledMem isSelected={isSelected}>
-  <div>
-    {mem.author}
-  </div>
-  <div>
-    {mem.text}
-  </div>
+  <div>{mem.author}</div>
+  {mem.text ? <div>{mem.text}</div> : ''}
+  {mem.imgUrl ? <img src={mem.imgUrl} /> : ''}
   <DeleteSymbol onClick={onDelete} />
 </StyledMem>;
 

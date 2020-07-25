@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const MemSchema = new Schema({
   text: String,
-  author: { type: String, required: true }
+  imgUrl: String,
+  author: { type: String, required: true },
 });
 
 MemSchema.method('toJSON', function () {
