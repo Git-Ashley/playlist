@@ -146,6 +146,7 @@ export default () => {
           cards={cardSlice}
           count={count}
           onLoadMore={() => setPage(page+1)}
+          onSearchKanji={kanji => searchCards({ value: kanji })}
         />
       </CardViewer>
     </CourseProvider>

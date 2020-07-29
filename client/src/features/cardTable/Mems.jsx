@@ -2,9 +2,11 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import apiRoutes from 'app/apiRoutes';
 import useFetch from 'hooks/useFetch';
+import useToggle from 'hooks/useToggle';
 import styled from 'styled-components';
 import {useDispatch} from "react-redux";
 import { addMem, deleteMem } from 'data/cardsSlice';
+import Modal from 'components/Modal';
 
 
 //TODO Make them into large pills, encompaaing the mem. the selecgted_mem is coloured green. click one will make that
@@ -52,6 +54,22 @@ const NewMemContainer = styled.div`
   }
 `;
 
+const MemageContainer = styled.img`
+  max-width: 250px;
+  cursor: pointer;
+`;
+
+const Memage = ({ src }) => {
+  const [isShowing, toggleIsShowing] = useToggle();
+
+  return <>
+    <Modal show={isShowing} onClose={toggleIsShowing}>
+      <img src={src} />
+    </Modal>
+    <MemageContainer src={src} onClick={toggleIsShowing} />
+  </>;
+};
+
 const NewMem = ({ cardId }) => {
   const [text, setText] = useState('');
   const dispatch = useDispatch();
@@ -90,7 +108,7 @@ const NewMem = ({ cardId }) => {
 
   return <NewMemContainer>
     {imgFile ? (
-      <img src={imgFile.data} />
+      <Memage src={imgFile.data} />
     ) : (
       <input
         placeholder='New mem'
@@ -136,7 +154,7 @@ const DeleteSymbol = styled.span`
 const MemPill = ({ mem, isSelected = false, onDelete }) => <StyledMem isSelected={isSelected}>
   <div>{mem.author}</div>
   {mem.text ? <div>{mem.text}</div> : ''}
-  {mem.imgUrl ? <img src={mem.imgUrl} /> : ''}
+  {mem.imgUrl ? <Memage src={mem.imgUrl} /> : ''}
   <DeleteSymbol onClick={onDelete} />
 </StyledMem>;
 

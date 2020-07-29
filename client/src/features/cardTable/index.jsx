@@ -139,18 +139,36 @@ const TableHeader = styled.div`
   background-color: rgb(222, 192, 135);
 `;
 
-export default ({ cards, onLoadMore, onSelectReview, onSelectLearn, count }) => (
-  <CardTableContainer>
-      <TableHeader style={{textAlign: 'center'}}>
-        <button onClick={onSelectLearn}>Learn</button>
-        <button onClick={onSelectReview}>Review</button>
-        <span>{count} cards</span>
-      </TableHeader>
-    {cards.map((card, i) => <CardRow i={i} key={card._id} card={card} />)}
-    {!cards.length ? (
-      <div>No results</div>
-    ) : (
-        <div><button type="button" onClick={onLoadMore}>Load more...</button></div>
-    )}
-  </CardTableContainer>
-);
+const SearchInput = styled.span`
+  margin: 10px;
+  
+  & >:nth-child(1) {
+    width: 30px;
+  }
+  
+  & >:nth-child(2) {
+  }
+`;
+
+export default ({ cards, onLoadMore, onSearchKanji, onSelectReview, onSelectLearn, count }) => {
+  const [kanji, setKanji] = useState('');
+  return (
+    <CardTableContainer>
+        <TableHeader style={{textAlign: 'center'}}>
+          <button onClick={onSelectLearn}>Learn</button>
+          <button onClick={onSelectReview}>Review</button>
+          <span>{count} cards</span>
+          <SearchInput>
+            <input type='text' value={kanji} placeholder='kanji' onChange={e => setKanji(e.target.value)}/>
+            <button onClick={() => onSearchKanji(kanji)}>🔎</button>
+          </SearchInput>
+        </TableHeader>
+      {cards.map((card, i) => <CardRow i={i} key={card._id} card={card} />)}
+      {!cards.length ? (
+        <div>No results</div>
+      ) : (
+          <div><button type="button" onClick={onLoadMore}>Load more...</button></div>
+      )}
+    </CardTableContainer>
+  )
+}

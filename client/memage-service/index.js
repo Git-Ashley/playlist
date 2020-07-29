@@ -8,7 +8,8 @@ const PORT = 33404;
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '1mb' }));
 app.use(cookieParser());
 
 app.put('/memage/', async (req, res) => {
@@ -27,6 +28,25 @@ app.put('/memage/', async (req, res) => {
     console.log('result:', result);
     res.json({ url: `/static/images/kanji-course/${fileName}` });
   });
+});
+
+app.post('/memage/delete/', async (req, res) => {
+  const imgUrl = req.body.imgUrl;
+
+  if (!imgUrl) {
+    return res.status(400).json({ msg: 'image url not provided' });
+  }
+
+  const path = `../public${imgUrl}`;
+
+  fs.unlink(path, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(400).json({ msg: 'error while deleting file' });
+    }
+
+    return res.json({ msg: 'Successfully deleted' });
+  })
 });
 
 app.listen(PORT, (err) => {

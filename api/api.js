@@ -205,7 +205,25 @@ router.post('/mem/delete', async (req, res) => {
   const memId = req.body.memId;
   const cardId = req.body.cardId;
 
-  await Mem.deleteOne({ _id: memId });
+  const mem = await Mem.findOne({ _id: memId });
+  if (!mem) {
+    return res.status(400).json({ msg: 'Mem not found' });
+  }
+
+  if (mem.imgUrl) {
+    try {
+      const res = await superagent
+          .post('http://localhost:33404/memage/delete/')
+          .send({ imgUrl: mem.imgUrl });
+      const msg = res.body.msg;
+      console.log('msg:', msg);
+      await Mem.deleteOne({ _id: memId });
+    } catch (err) {
+      return res.status(400).json({ msg: err });
+    }
+  } else {
+    await Mem.deleteOne({ _id: memId });
+  }
 
   const updatedCard = await Card.findOneAndUpdate(
     { _id: cardId },
@@ -213,7 +231,7 @@ router.post('/mem/delete', async (req, res) => {
     { new: true },
   );
 
-  res.json(updatedCard.mems);
+  return res.json(updatedCard.mems);
 });
 
 router.post('/mem/add', async (req, res) => {
@@ -267,7 +285,18 @@ router.post('/cards/search', async (req, res) => {
   const userId = req.user.id;
   const courseId = req.courseId;
 
-  const excludeUserTags = req.body.excludeUserTags || [];
+  const {
+    excludeUserTags = [],
+    excludeCourseTags = [],
+    includeUserTags = [],
+    includeCourseTags = [],
+    sortField = 'primary_index',
+    sortMode = 1,
+    reviewDateMode,
+    ...rest
+  } = req.body;
+
+  /*const excludeUserTags = req.body.excludeUserTags || [];
   const excludeCourseTags = req.body.excludeCourseTags || [];
   const includeUserTags = req.body.includeUserTags || [];
   const includeCourseTags = req.body.includeCourseTags || [];
@@ -275,6 +304,7 @@ router.post('/cards/search', async (req, res) => {
   //const includeTagsMode = 'UNION';
   const sortField = req.body.sortField || 'primary_index';
   const sortMode = req.body.sortMode || 1;
+  */
 
   const sort = { [sortField]: sortMode };
 
@@ -286,6 +316,7 @@ router.post('/cards/search', async (req, res) => {
     course_id: mongoose.Types.ObjectId(courseId),
     tags: { $nin: excludeUserTags },
     course_tags: { $nin: excludeCourseTags },
+    ...rest
   };
 
   if (includeUserTags.length) {
