@@ -48,7 +48,7 @@ export default () => {
 
   const [page, setPage] = useState(1);
 
-  //TODO: const [includeUserTags, setIncludeUserTags] = useState([]);
+  const [includeUserTags, setIncludeUserTags] = useState([]);
   const [excludeUserTags, setExcludeUserTags] = useState(['ignore']);
   const [includeCourseTags, setIncludeCourseTags] = useState([]);
   //TODO: const [excludeCourseTags, setExcludeCourseTags] = useState([]);
@@ -62,23 +62,31 @@ export default () => {
     searchCards({
       excludeUserTags,
       //excludeCourseTags,
-      //includeUserTags,
+      includeUserTags,
       includeCourseTags,
       reviewDateMode,
       sortField,
       sortMode,
     });
     setPage(1);
-  }, [excludeUserTags, includeCourseTags, reviewDateMode, sortField, sortMode]);
+  }, [
+    excludeUserTags,
+    includeCourseTags,
+    reviewDateMode,
+    sortField,
+    sortMode,
+  ]);
 
   const onSelectLearn = useCallback(() => {
     const newExcludeUserTags = ['ignore'];
     const newIncludeCourseTags = [];
+    const newIncludeUserTags = [];
     const newSortField = 'primary_index';
     const newSortMode = 1;
     const newReviewDateMode = 'UNLEARNT';
 
     setExcludeUserTags(newExcludeUserTags);
+    setIncludeUserTags(newIncludeUserTags);
     setIncludeCourseTags(newIncludeCourseTags);
     setSortField(newSortField);
     setSortMode(newSortMode);
@@ -86,6 +94,7 @@ export default () => {
 
     searchCards({
       excludeUserTags: newExcludeUserTags,
+      includeUserTags: newIncludeUserTags,
       includeCourseTags: newIncludeCourseTags,
       reviewDateMode: newReviewDateMode,
       sortField: newSortField,
@@ -96,11 +105,13 @@ export default () => {
   const onSelectReview = useCallback(() => {
     const newExcludeUserTags = ['ignore'];
     const newIncludeCourseTags = [];
+    const newIncludeUserTags = [];
     const newSortField = 'review_date';
     const newSortMode = 1;
     const newReviewDateMode = 'BEFORE';
 
     setExcludeUserTags(newExcludeUserTags);
+    setIncludeUserTags(newIncludeUserTags);
     setIncludeCourseTags(newIncludeCourseTags);
     setSortField(newSortField);
     setSortMode(newSortMode);
@@ -108,6 +119,7 @@ export default () => {
 
     searchCards({
       excludeUserTags: newExcludeUserTags,
+      includeUserTags: newIncludeUserTags,
       includeCourseTags: newIncludeCourseTags,
       reviewDateMode: newReviewDateMode,
       sortField: newSortField,
@@ -129,6 +141,7 @@ export default () => {
             {...{
               excludeUserTags,
               includeCourseTags,
+              includeUserTags,
               reviewDateMode,
               sortField,
               sortMode,

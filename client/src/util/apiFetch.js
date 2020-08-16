@@ -7,6 +7,7 @@ export default (path, payload, ops = {}) => {
     headers: {
       'Content-Type': 'application/json'
     },
+    credentials: 'include',
   };
 
   if (payload && ['PUT', 'POST'].includes(fetchOps.method)) {

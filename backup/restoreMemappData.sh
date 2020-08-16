@@ -2,7 +2,7 @@
 
 MONGO_DB_NAME="memapp-test-1"
 DB_NAME="docker-node-mongo"
-DATA_NAME="memapp-data-2020-07-03"
+DATA_NAME="memapp-data-2020-08-09"
 
 docker exec -it $(docker ps -aqf "name=${MONGO_DB_NAME}") mongo ${DB_NAME} --eval "db.dropDatabase();"
 docker cp ./$DATA_NAME $(docker ps -aqf "name=${MONGO_DB_NAME}"):/tmp

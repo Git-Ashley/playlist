@@ -11,7 +11,7 @@ const ControlsContainer = styled.div`
 `;
 
 const Controls = ({ card }) => {
-  const user = useUser();
+  const [user] = useUser();
   const dispatch = useDispatch();
 
   const levels = user.default_levels;

@@ -11,6 +11,10 @@ const UserCardStats = require('./models/card-course-model/user-card-stats');
 const Mem = require('./models/card-course-model/mem');
 const Course = require('./models/card-course-model/course');
 
+// Other routes
+const authInit = require('./routes/auth/init');
+const auth = require('./routes/auth');
+
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
 const userCardProjectionExclude = {
@@ -178,12 +182,8 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json({ limit: '1mb' }));
 router.use(cookieParser());
-router.use((req, res, next) => {
-  User.findOne({ username : 'rooster356' }).then(user => {
-    req.user = user;
-    next();
-  });
-});
+router.use(authInit);
+router.use('/auth', auth);
 router.use((req, res, next) => {
   req.courseId = COURSE_ID;
   next();
@@ -279,6 +279,46 @@ router.post('/mem/add', async (req, res) => {
 });
 
 /**
+ * Tag routes
+ */
+router.post('/course/:courseId/tag/add', async (req, res) => {
+  const user = req.user;
+  const courseId = req.courseId;
+  const newTag = req.body.tag;
+
+  if (!courseId || !user.courses[courseId]) {
+    res.status(400).json();
+  }
+
+  const tags = user.courses[courseId].tags;
+  if (!Array.isArray(tags)) {
+    user.courses[courseId].tags = [newTag];
+  } else if (!tags.includes(newTag)) {
+    tags.push(newTag);
+  } else {
+    res.status(400).json({ msg: 'tag already exists' });
+  }
+
+  user.markModified('courses');
+  const updatedUser = await user.save();
+
+  res.json(updatedUser);
+});
+
+router.post('/course/:courseId/course-tag/add', async (req, res) => {
+  const courseId = req.courseId;
+  const newTag = req.body.tag;
+
+  const updatedCourse = await Course.findOneAndUpdate(
+    { _id: courseId },
+    { $addToSet: { tags: newTag } },
+    { new: true },
+  );
+
+  res.json(updatedCourse);
+});
+
+/**
  * Card routes
  */
 router.post('/cards/search', async (req, res) => {
@@ -295,16 +335,6 @@ router.post('/cards/search', async (req, res) => {
     reviewDateMode,
     ...rest
   } = req.body;
-
-  /*const excludeUserTags = req.body.excludeUserTags || [];
-  const excludeCourseTags = req.body.excludeCourseTags || [];
-  const includeUserTags = req.body.includeUserTags || [];
-  const includeCourseTags = req.body.includeCourseTags || [];
-  const reviewDateMode = req.body.reviewDateMode;
-  //const includeTagsMode = 'UNION';
-  const sortField = req.body.sortField || 'primary_index';
-  const sortMode = req.body.sortMode || 1;
-  */
 
   const sort = { [sortField]: sortMode };
 
@@ -331,6 +361,8 @@ router.post('/cards/search', async (req, res) => {
     query.review_date = { $lte: new Date() };
   } else if (reviewDateMode === 'AFTER') {
     query.review_date = { $gte: new Date() };
+  } else if (reviewDateMode === 'LEARNT') {
+    query.review_date = { $exists: true }
   } else if (reviewDateMode === 'UNLEARNT') { // i.e. unlearnt
     query.review_date = null;
   }
@@ -408,10 +440,7 @@ router.post('/card/:cardId/review', async (req, res) => {
   return res.json({ error: 'Oops! Something went wrong! Please contact support at support@/dev/null'});
 });
 
-router.post('/login', (req, res) => {
-  User.findOne({ username : req.body.username }).then((user) => res.json(user));
-});
-
+// Update user specific stuff
 router.post('/card/:cardId/update', async (req, res) => {
   //TODO if (level !== 0) { calculate review_date }
   const userId = req.user.id;

@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Route, Redirect, Switch, BrowserRouter } from "react-router-dom";
+import AuthRoute from 'components/customRoutes/AuthRoute';
 import styled from 'styled-components';
 import Course from 'features/course';
-import apiFetch from 'util/apiFetch';
-import apiRoutes from 'app/apiRoutes';
+import Login from 'app/Login';
 import { UserProvider } from 'app/UserContext';
+
+const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
 const AppContainer = styled.div`
   height: 100%;
@@ -23,23 +25,26 @@ const AppContent = styled.div`
 export default () => {
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    apiFetch(apiRoutes.login(), {
-      username: 'rooster356'
-    }).then(user => setUser(user));
-  }, []);
-
   return (
     <AppContainer>
       <BrowserRouter>
-        <UserProvider user={user}>
+        <UserProvider user={user} setUser={setUser}>
           <AppHeader>App Header</AppHeader>
           <AppContent>
             <Switch>
-              <Route path="/course/:courseId">
+              <AuthRoute exact path='/'>HOME.</AuthRoute>
+              <AuthRoute path="/course/:courseId">
                 <Course />
-              </Route>
-              <Redirect to="/course/5ebc9e10f8144bff47de9cc8" />
+              </AuthRoute>
+              <AuthRoute path="/user/profile">
+                <div>User manijment page!</div>
+              </AuthRoute>
+              { (!user || !user._id) && (
+                <Route path="/login">
+                  <Login onLoginSuccess={setUser} />
+                </Route>
+              )}
+              <Redirect to={`/course/${COURSE_ID}`} />
             </Switch>
           </AppContent>
         </UserProvider>

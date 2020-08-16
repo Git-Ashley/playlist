@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
 import Select from 'react-select';
+import CreateInput from 'components/CreateInput';
+import apiFetch from 'util/apiFetch';
+import apiRoutes from 'app/apiRoutes';
 
 const InputContainer = styled.div`
 `;
@@ -33,7 +36,7 @@ const CheckboxInput = ({ label, checked = false, onChange, htmlFor }) => (
 const reviewModeOptions = [
   { label: 'All', value: 'ALL' },
   { label: 'Needs review', value: 'BEFORE' },
-  { label: 'Reviewed', value: 'AFTER' },
+  { label: 'Learnt', value: 'LEARNT' },
   { label: 'Unlearnt', value: 'UNLEARNT' },
 ];
 
@@ -52,17 +55,19 @@ const sortModeOptions = [
 export default ({
   excludeUserTags,
   includeCourseTags,
+  includeUserTags,
   reviewDateMode,
   sortField,
   sortMode,
   setExcludeUserTags,
   setIncludeCourseTags,
+  setIncludeUserTags,
   setReviewDateMode,
   setSortField,
   setSortMode,
   onApply,
 }) => {
-  const user = useUser();
+  const [user, setUser] = useUser();
   const course = useCourse();
 
   //1. Initiate as review mode, then call onApply in a componentDidMount hook (useEffect)
@@ -70,19 +75,47 @@ export default ({
   //2. Add ability to change shit around.
   //3. Pretty UI last.
   if (!course) {
-    return 'BE PATIENT!!!';
+    return 'BE PATIENT!';
   }
+
+  const handleCreateUserTag = useCallback(newTag => {
+    apiFetch(apiRoutes.addUserTag(course._id), {
+      tag: newTag
+    }).then(updatedUser => {
+      if (!updatedUser || updatedUser._id !== user._id) {
+        throw updatedUser;
+      }
+
+      setUser(updatedUser);
+    }).catch(console.log);
+  });
+
+
   return (
     <InputContainer>
       <div>
-      {course.tags.map(tag =>
-        <CheckboxInput
-          key={tag}
-          onChange={check => onTagCheck(check, tag, includeCourseTags, setIncludeCourseTags)}
-          label={tag}
-          checked={includeCourseTags.includes(tag)}
-        />
-      )}
+        <label>Course tags</label>
+        {course.tags.map(tag =>
+          <CheckboxInput
+            key={tag}
+            onChange={check => onTagCheck(check, tag, includeCourseTags, setIncludeCourseTags)}
+            label={tag}
+            checked={includeCourseTags.includes(tag)}
+          />
+        )}
+      </div>
+      <hr />
+      <div>
+        <label>User tags</label>
+        {user.courses[course._id].tags.map(tag =>
+          <CheckboxInput
+              key={tag}
+              onChange={check => onTagCheck(check, tag, includeUserTags, setIncludeUserTags)}
+              label={tag}
+              checked={includeUserTags.includes(tag)}
+          />
+        )}
+        <CreateInput onCreate={handleCreateUserTag} />
       </div>
       <hr />
         <label>Review status</label>

@@ -56,14 +56,18 @@ export const updateBlueprint = (cardId, updates) => dispatch => {
     .catch(console.log);
 };
 
-export const ignoreCard = cardId => (dispatch, getState) => {
+export const addTag = (cardId, tag) => (dispatch, getState) => {
   const state = getState();
   const currentCard = selectCard(cardId)(state);
-  if (currentCard.tags.includes('ignore')) {
+  if (currentCard.tags.includes(tag)) {
     return;
   }
-  const updatedTags = [...currentCard.tags, 'ignore'];
+  const updatedTags = [...currentCard.tags, tag];
   dispatch(updateCard(cardId, { tags: updatedTags }));
+};
+
+export const ignoreCard = cardId => dispatch => {
+  dispatch(addTag(cardId, 'ignore'));
 };
 
 export const reviewCard = (cardId, level) => dispatch => {

@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   username: { type: String, required: true },
+  password: String,
   courses: Object,
   default_levels: {
     type: Array,
@@ -53,6 +56,13 @@ const UserSchema = new Schema({
 
 UserSchema.methods.getId = function(){
   return this._id.toString();
+};
+
+UserSchema.methods.passwordMatch = async plainText => {
+  if (!this.password || plainText) {
+    return false;
+  }
+  return await bcrypt.compare(plainText, this.password);
 };
 
 module.exports = User = mongoose.model('user', UserSchema);
