@@ -9,7 +9,7 @@ passport.use(new LocalStrategy((username, password, done) => {
     User.findOne({ username }).then(user => {
 
         if (!user) {
-            return done(null, false);
+          throw "user doesn't exist";
         }
 
         return Promise.all([
@@ -18,14 +18,15 @@ passport.use(new LocalStrategy((username, password, done) => {
         ]);
     })
     .then(([user, passwordMatches]) => {
-      //TODO
       if (!passwordMatches) {
-        //return done(null, false);
+        throw "password doesn't match";
       }
 
       done(null, user);
     })
-    .catch(done);
+    .catch(reason => {
+      done(reason, false);
+    });
 }));
 
 router.post(
@@ -51,6 +52,14 @@ router.post(
         })(req, res, next);
     }
 );
+
+router.get('/login', function(req, res) {
+  if (!req.user) {
+    return res.status(204).json();
+  }
+
+  return res.json(req.user);
+});
 
 router.post('/logout', function(req, res){
     req.logout();

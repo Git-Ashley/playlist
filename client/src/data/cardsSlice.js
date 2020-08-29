@@ -56,6 +56,16 @@ export const updateBlueprint = (cardId, updates) => dispatch => {
     .catch(console.log);
 };
 
+export const addTagToBlueprint = (cardId, tag) => (dispatch, getState) => {
+  const state = getState();
+  const currentCard = selectCard(cardId)(state);
+  if (currentCard.course_tags.includes(tag)) {
+    return;
+  }
+  const updatedTags = [...currentCard.course_tags, tag];
+  dispatch(updateBlueprint(cardId, { course_tags: updatedTags }));
+};
+
 export const addTag = (cardId, tag) => (dispatch, getState) => {
   const state = getState();
   const currentCard = selectCard(cardId)(state);
@@ -64,6 +74,12 @@ export const addTag = (cardId, tag) => (dispatch, getState) => {
   }
   const updatedTags = [...currentCard.tags, tag];
   dispatch(updateCard(cardId, { tags: updatedTags }));
+};
+
+export const removeTag = (cardId, tag) => (dispatch, getState) => {
+  const state = getState();
+  const currentCard = selectCard(cardId)(state);
+  //TODO
 };
 
 export const ignoreCard = cardId => dispatch => {

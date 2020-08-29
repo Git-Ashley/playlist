@@ -1,17 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
+import ActionableDisplay from 'components/atoms/ActionableDisplay';
 
 const StyledText = styled.div`
   padding: 6px 8px;
+  cursor: default;
 `;
 
 const EditSymbol = styled.span`
-  ${({ editOnHover }) => editOnHover ? 'display: none;' : ''}
-  
   @media screen and (min-width: 992px) {
     display: inline;
   }
-  
+
   height: 20px;
   width: 20px;
   border: 1px solid black;
@@ -30,19 +30,7 @@ const EditSymbol = styled.span`
   padding: 2px 2px 0 1px;
 `;
 
-const EditableTextContainer = styled(StyledText)`
-  position: relative;
-`;
-const EditableDisplay = ({ onEdit, editOnHover, children }) => {
-  const [isHovered, setIsHovered] = useState();
-
-  return <EditableTextContainer onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-    {children}
-    {isHovered || !editOnHover ? <EditSymbol editOnHover={editOnHover} onClick={onEdit} /> : ''}
-  </EditableTextContainer>;
-};
-
-export default ({ text, onUpdate, enableEdit, editOnHover }) => {
+export default ({ text, onUpdate, enableEdit = true, showActionOnHover, ...otherProps }) => {
   const [editMode, setEditMode] = useState(false);
   const [editableText, setEditableText] = useState(text);
 
@@ -55,14 +43,18 @@ export default ({ text, onUpdate, enableEdit, editOnHover }) => {
     return <StyledText>{text}</StyledText>
   }
 
-  return <div>
+  return <div {...otherProps}>
     { editMode ? (<>
       <input type='text' value={editableText} onChange={e => setEditableText(e.target.value)}/>
       <span><button onClick={handleUpdateDone}>✔</button></span>
     </>) : (
-      <EditableDisplay onEdit={() => setEditMode(true)} editOnHover={editOnHover}>
-        {text}
-      </EditableDisplay>
+      <ActionableDisplay
+        onAction={() => setEditMode(true)}
+        showActionOnHover={showActionOnHover}
+        ActionComponent={EditSymbol}
+      >
+        <StyledText>{text}</StyledText>
+      </ActionableDisplay>
     )}
   </div>;
 };

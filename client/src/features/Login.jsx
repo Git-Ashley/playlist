@@ -4,11 +4,11 @@ import apiRoutes from "app/apiRoutes";
 
 export default ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('rooster356');
-  const [password, setPassword] = useState('sof');
+  const [password, setPassword] = useState('libor');
   const [errors, setErrors] = useState(null);
 
   const login = useCallback(() => {
-    apiFetch(apiRoutes.login(), {
+    apiFetch(apiRoutes.localLogin(), {
       username, password
     }).then(user => {
       if (user._id) {

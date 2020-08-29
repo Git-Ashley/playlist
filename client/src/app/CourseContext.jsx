@@ -1,19 +1,21 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from "react-router";
 import apiRoutes from 'app/apiRoutes';
-import useFetch from 'hooks/useFetch';
+import apiFetch from 'util/apiFetch';
 
 const CourseContext = createContext(null);
 
 export const CourseProvider = ({ children }) => {
   const { courseId } = useParams();
-  const [fetchCourse, course] = useFetch(apiRoutes.course(courseId));
+  const [course, setCourse] = useState(null);
 
   useEffect(() => {
-    fetchCourse();
+    apiFetch(apiRoutes.course(courseId))
+      .then(setCourse)
+      .catch(console.log);
   }, []);
 
-  return (<CourseContext.Provider value={course}>
+  return (<CourseContext.Provider value={[course, setCourse]}>
     {children}
   </CourseContext.Provider>);
 };

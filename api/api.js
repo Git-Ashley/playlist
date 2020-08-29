@@ -13,7 +13,8 @@ const Course = require('./models/card-course-model/course');
 
 // Other routes
 const authInit = require('./routes/auth/init');
-const auth = require('./routes/auth');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
@@ -183,7 +184,8 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json({ limit: '1mb' }));
 router.use(cookieParser());
 router.use(authInit);
-router.use('/auth', auth);
+router.use('/auth', authRoutes);
+router.use('/user', userRoutes);
 router.use((req, res, next) => {
   req.courseId = COURSE_ID;
   next();
@@ -281,7 +283,7 @@ router.post('/mem/add', async (req, res) => {
 /**
  * Tag routes
  */
-router.post('/course/:courseId/tag/add', async (req, res) => {
+router.post('/course/:courseId/tag/create', async (req, res) => {
   const user = req.user;
   const courseId = req.courseId;
   const newTag = req.body.tag;
@@ -305,15 +307,23 @@ router.post('/course/:courseId/tag/add', async (req, res) => {
   res.json(updatedUser);
 });
 
-router.post('/course/:courseId/course-tag/add', async (req, res) => {
+router.post('/course/:courseId/course-tag/create', async (req, res) => {
   const courseId = req.courseId;
   const newTag = req.body.tag;
+
+  if (!newTag || !courseId) {
+    res.status(400).json();
+  }
 
   const updatedCourse = await Course.findOneAndUpdate(
     { _id: courseId },
     { $addToSet: { tags: newTag } },
     { new: true },
   );
+
+  if (!updatedCourse) {
+    res.status(400).json();
+  }
 
   res.json(updatedCourse);
 });
@@ -350,11 +360,11 @@ router.post('/cards/search', async (req, res) => {
   };
 
   if (includeUserTags.length) {
-    query.tags.$in = includeUserTags;
+    query.tags.$all = includeUserTags;
   }
 
   if (includeCourseTags.length) {
-    query.course_tags.$in = includeCourseTags;
+    query.course_tags.$all = includeCourseTags;
   }
 
   if (reviewDateMode === 'BEFORE') {
@@ -452,7 +462,7 @@ router.post('/card/:cardId/update', async (req, res) => {
   const level = req.body.level;
 
   if (Array.isArray(tags)) {
-    updates.tags = tags;
+    updates.$addToSet = { tags };
   }
 
   if (level) {
@@ -480,14 +490,23 @@ router.post('/card/:cardId/update', async (req, res) => {
 });
 
 router.post('/card/:cardId/blueprint', async (req, res) => {
-  const newDef = req.body.definition;
   const userId = req.user.id;
   const courseId = req.courseId;
   const cardId = req.params.cardId;
 
+  const updates = {};
+  const newDef = req.body.definition;
+  const courseTags = req.body.course_tags;
+
+  if (newDef) {
+    updates.definition = newDef;
+  } else if (Array.isArray(courseTags)) {
+    updates.$addToSet = { course_tags: courseTags };
+  }
+
   const updatedCard = await Card.findOneAndUpdate(
     { _id: cardId },
-    { definition: newDef },
+    updates,
     { new: true },
   );
 

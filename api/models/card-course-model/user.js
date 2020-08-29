@@ -58,12 +58,20 @@ UserSchema.methods.getId = function(){
   return this._id.toString();
 };
 
-UserSchema.methods.passwordMatch = async plainText => {
-  if (!this.password || plainText) {
+UserSchema.methods.passwordMatch = function(plainText) {
+  if (!this.password || !plainText) {
     return false;
   }
-  return await bcrypt.compare(plainText, this.password);
+  return bcrypt.compare(plainText, this.password);
 };
+
+UserSchema.methods.setPassword = async function(plainText) {
+  const hash = await bcrypt.hash(plainText, 10);
+  console.log('hash:', hash);
+  this.password = hash;
+
+  console.log('this.password:', this.password);
+}
 
 module.exports = User = mongoose.model('user', UserSchema);
 

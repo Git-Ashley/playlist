@@ -15,11 +15,11 @@ import Modal from 'components/Modal';
 const MemsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  
+
   & > * {
     width: 100%;
   }
-  
+
   & > :not(:last-child) {
     margin-bottom: 10px;
   }
@@ -40,15 +40,15 @@ const NewMemContainer = styled.div`
   display: flex;
   font-weight: bold;
   background: #c7c7c7;
-  
+
   & >:nth-child(1) {
     flex: 4;
   }
-  
+
   & >:nth-child(2) {
     flex: 1;
   }
-  
+
   & >:nth-child(3) {
     flex: 1;
   }
@@ -70,7 +70,7 @@ const Memage = ({ src }) => {
   </>;
 };
 
-const NewMem = ({ cardId }) => {
+const NewMem = ({ cardId, ...otherProps }) => {
   const [text, setText] = useState('');
   const dispatch = useDispatch();
   const [imgFile, setImgFile] = useState(null);
@@ -106,7 +106,7 @@ const NewMem = ({ cardId }) => {
     setImgFile(null);
   };
 
-  return <NewMemContainer>
+  return <NewMemContainer {...otherProps}>
     {imgFile ? (
       <Memage src={imgFile.data} />
     ) : (
@@ -129,11 +129,11 @@ const NewMem = ({ cardId }) => {
 
 const StyledMem = styled(StyledPill)`
   background: ${props => props.isSelected ? '#86cc86' : 'inherit'};
-  
+
   & >:nth-child(1) {
     font-weight: bold;
   }
-   
+
   & >:nth-child(2) {
     margin-top: 10px;
   }
@@ -159,7 +159,7 @@ const MemPill = ({ mem, isSelected = false, onDelete }) => <StyledMem isSelected
 </StyledMem>;
 
 
-export default ({ card }) => {
+export default ({ card, ...otherProps }) => {
   const dispatch = useDispatch();
   const [fetchMems, mems, isFetchingMems] = useFetch(apiRoutes.mems());
 
@@ -173,13 +173,14 @@ export default ({ card }) => {
   }, [card]);
 
   if (isFetchingMems) {
-    return <div>Fetching mems...</div>;
+    return <div {...otherProps}>Fetching mems...</div>;
   }
 
   if (!mems || !mems.length) {
-    return <NewMem cardId={card._id} />;
+    return <NewMem {...otherProps} cardId={card._id} />;
   }
-  return <MemsContainer>
+
+  return <MemsContainer {...otherProps}>
     {mems.map(mem =>
       <MemPill
         key={mem.id}

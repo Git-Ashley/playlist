@@ -10,7 +10,7 @@ const ControlsContainer = styled.div`
   flex-direction: column;
 `;
 
-const Controls = ({ card }) => {
+const Controls = ({ card, ...otherProps }) => {
   const [user] = useUser();
   const dispatch = useDispatch();
 
@@ -21,7 +21,7 @@ const Controls = ({ card }) => {
   const onIgnoreCard = () => dispatch(ignoreCard(card._id));
 
   return (
-    <ControlsContainer>
+    <ControlsContainer {...otherProps}>
       {levels.map(({ denomination, value }, i) => (
         <button
           key={String(value)+denomination}

@@ -27,17 +27,17 @@ const useSearchCards = () => {
 const CardViewer = styled.div`
   display: flex;
   height: 100%;
-  
+
   & >:nth-child(1) {
     padding: 20px;
     flex: 1;
     display: none;
-    
+
     @media screen and (min-width: 992px) {
       display: block;
     }
   }
-  
+
   & >:nth-child(2) {
     flex: 4;
   }
@@ -72,6 +72,7 @@ export default () => {
   }, [
     excludeUserTags,
     includeCourseTags,
+    includeUserTags,
     reviewDateMode,
     sortField,
     sortMode,
@@ -146,6 +147,7 @@ export default () => {
               sortField,
               sortMode,
               setExcludeUserTags,
+              setIncludeUserTags,
               setIncludeCourseTags,
               setReviewDateMode,
               setSortField,

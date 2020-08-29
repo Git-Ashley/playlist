@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import AddButton from 'components/atoms/buttons/AddButton';
 
 const StyledInput = styled.input`
   width: 100px;
 `;
 
-export default ({
-  createLabel = '+',
-  onCreate,
-}) => {
+export default ({ onCreate }) => {
   const [inputMode, setInputMode] = useState(false);
   const [text, setText] = useState('');
 
@@ -21,8 +19,6 @@ export default ({
         <button onClick={() => setInputMode(false)}>×</button>
       </div>);
   } else {
-    return <button onClick={() => setInputMode(true)}>
-      {createLabel}
-    </button>;
+    return <AddButton onClick={() => setInputMode(true)} />
   }
 };

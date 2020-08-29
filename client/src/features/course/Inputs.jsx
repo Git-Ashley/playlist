@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
 import Select from 'react-select';
-import CreateInput from 'components/CreateInput';
+import CreateInput from 'components/molecules/CreateInput';
 import apiFetch from 'util/apiFetch';
 import apiRoutes from 'app/apiRoutes';
+import LoadingPlaceholder from 'components/molecules/LoadingPlaceholder';
 
 const InputContainer = styled.div`
 `;
@@ -68,18 +69,14 @@ export default ({
   onApply,
 }) => {
   const [user, setUser] = useUser();
-  const course = useCourse();
+  const [course, setCourse] = useCourse();
 
-  //1. Initiate as review mode, then call onApply in a componentDidMount hook (useEffect)
-  //... review date just a checkbox for toggling values btwn BEFORE / ALL.
-  //2. Add ability to change shit around.
-  //3. Pretty UI last.
   if (!course) {
-    return 'BE PATIENT!';
+    return <LoadingPlaceholder />;
   }
 
   const handleCreateUserTag = useCallback(newTag => {
-    apiFetch(apiRoutes.addUserTag(course._id), {
+    apiFetch(apiRoutes.createUserTag(course._id), {
       tag: newTag
     }).then(updatedUser => {
       if (!updatedUser || updatedUser._id !== user._id) {
@@ -90,6 +87,17 @@ export default ({
     }).catch(console.log);
   });
 
+  const handleCreateCourseTag = useCallback(newTag => {
+    apiFetch(apiRoutes.createCourseTag(course._id), {
+      tag: newTag
+    }).then(updatedCourse => {
+      if (!updatedCourse || updatedCourse._id !== course._id) {
+        throw updatedCourse;
+      }
+
+      setCourse(updatedCourse);
+    }).catch(console.log);
+  });
 
   return (
     <InputContainer>
@@ -103,6 +111,7 @@ export default ({
             checked={includeCourseTags.includes(tag)}
           />
         )}
+        <CreateInput onCreate={handleCreateCourseTag} />
       </div>
       <hr />
       <div>
@@ -115,6 +124,12 @@ export default ({
               checked={includeUserTags.includes(tag)}
           />
         )}
+        <CheckboxInput
+            key='ignore'
+            onChange={check => onTagCheck(check, 'ignore', includeUserTags, setIncludeUserTags)}
+            label='ignore'
+            checked={includeUserTags.includes('ignore')}
+        />
         <CreateInput onCreate={handleCreateUserTag} />
       </div>
       <hr />

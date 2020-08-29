@@ -3,7 +3,8 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import ReviewActions from './CardReviewActions';
 import Mems from './Mems';
-import EditableText from 'components/EditableText';
+import CardTags from './CardTags';
+import EditableText from 'components/molecules/EditableText';
 import { updateBlueprint } from 'data/cardsSlice';
 
 const CardRowContainer = styled.div`
@@ -12,27 +13,30 @@ const CardRowContainer = styled.div`
   border-right: 1px solid black;
   margin: 10px 0;
   display: grid;
-  
+
   width: 100%;
-  grid-template-columns: ;
+  grid-template-columns: auto;
   grid-template-rows: auto;
   grid-template-areas:
-    "index"
     "value"
-    "definition"
+    "def"
     "primary_index"
     "secondary_index"
     "review_date"
     "controls"
-    "mems";
-      
+    "mems"
+    "tags";
+  grid-gap: 0px;
+
   @media screen and (min-width: 992px) {
-    grid-template-columns: 20px 100px 200px 200px fit-content(200px) fit-content(200px);
-    grid-template-rows: auto;
+    grid-template-columns: 100px 200px 200px fit-content(200px);
     grid-template-areas:
-      "index value definition review_date controls mems"
-      "index value definition primary_index controls mems"
-      "index value definition secondary_index controls mems";
+      "value def review_date mems"
+      "value def controls mems"
+      "value def controls mems"
+      "tags primary_index other mems"
+      "tags secondary_index other mems"
+      "tags misc1 other mems";
     width: auto;
   }
 
@@ -45,40 +49,41 @@ const CardRowContainer = styled.div`
     border-left: 1px solid black;
     padding: 5px;
   }
-  
-  & >:nth-child(1) {
-    grid-area: index;
-  }
-  
-  & >:nth-child(2) {
+
+  & > .value {
     grid-area: value;
     font-size: 60px;
   }
-  
-  & >:nth-child(3) {
-    grid-area: definition;
+
+  & > .tags {
+    grid-area: tags;
+    padding: 5px 0 0 5px;
+  }
+
+  & > .def {
+    grid-area: def;
     @media screen and (min-width: 992px) {
       padding: 30px;
     }
   }
-  
-  & >:nth-child(4) {
+
+  & > .review_date {
     grid-area: review_date;
   }
-  
-  & >:nth-child(5) {
+
+  & > .primary_index {
     grid-area: primary_index;
   }
-  
-  & >:nth-child(6) {
+
+  & > .secondary_index {
     grid-area: secondary_index;
   }
-  
-  & >:nth-chilid(7) {
+
+  & > .controls {
     grid-area: controls;
   }
-  
-  & >:nth-child(8) {
+
+  & > .mems {
     grid-area: mems;
     padding: 10px;
   }
@@ -95,28 +100,29 @@ const CardRow = ({ card, i }) => {
   const ignored = card.tags && card.tags.includes('ignore');
   return (
     <CardRowContainer ignored={ignored}>
-      <div>{i + 1}</div>
-      <div>{card.value}</div>
+      <div className='value'>{card.value}</div>
       {show ? (
-        <EditableText
-          text={card.definition}
-          onUpdate={newDefinition => onUpdateBlueprint({ definition: newDefinition })}
-          enableEdit
-        />
-      ) : (
-        <div>
-          <button onClick={() => setShow(true)} style={{height:25}}>show</button>
-        </div>
-      )}
-      <div>{new Date(card.review_date).toDateString()}</div>
-      <div>frq index: {card.primary_index}</div>
-      <div>kodansha ref: {card.secondary_index}</div>
-      {show ?
         <>
-          <ReviewActions card={card}/>
-          <Mems card={card} />
-        </> : ''
-      }
+          <EditableText
+            className='def'
+            text={card.definition}
+            onUpdate={newDefinition => onUpdateBlueprint({ definition: newDefinition })}
+          />
+          <ReviewActions className='controls' card={card}/>
+          <Mems className='mems' card={card} />
+          <CardTags className='tags' cardId={card._id} userTags={card.tags} courseTags={card.course_tags} />
+        </>
+      ) : (
+        <>
+          <div className='def'>
+            <button onClick={() => setShow(true)} style={{height:25}}>show</button>
+          </div>
+          <div className='tags' />
+        </>
+      )}
+      <div className='review_date'>{new Date(card.review_date).toDateString()}</div>
+      <div className='primary_index'>frq index: {card.primary_index}</div>
+      <div className='secondary_index'>kodansha ref: {card.secondary_index}</div>
     </CardRowContainer>
   );
 };
@@ -136,16 +142,16 @@ const TableHeader = styled.div`
   }
   height: 20px;
   width: 100%;
-  background-color: rgb(222, 192, 135);
+  background-color: #d2b58e;
 `;
 
 const SearchInput = styled.span`
   margin: 10px;
-  
+
   & >:nth-child(1) {
     width: 30px;
   }
-  
+
   & >:nth-child(2) {
   }
 `;
