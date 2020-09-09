@@ -1,12 +1,11 @@
 /* eslint-disable-next-line react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import apiRoutes from 'app/apiRoutes';
-import useFetch from 'hooks/useFetch';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 import { useDispatch } from "react-redux";
 import { addTag, removeTag, addTagToBlueprint } from 'data/cardsSlice';
-import Modal from 'components/Modal';
 import AddButton from 'components/atoms/buttons/AddButton';
+import Dropdown from 'components/molecules/Dropdown';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
 import EditablePill from 'components/molecules/EditablePill';
@@ -20,87 +19,12 @@ const TagsContainer = styled.div`
   }
 `;
 
-// OVerlay
-const OverlayWrapper = styled.div`
-  position: relative;
-`;
-
-const TagsDropdownWrapper = styled.div`
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  background: white;
-  border-radius: 3px;
-  z-index: 2;
-  box-shadow: 3px 3px 5px rgba(0,0,0,0.4);
-
-  & > * {
-    padding: 5px;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #c5dfec;
-    }
-  }
-`;
-
-const TagsDropdown = ({ options, onSelect }) => {
-  return (<TagsDropdownWrapper>
-    {options.map(option =>
-      <div
-        key={option}
-        onClick={e => {
-          e.stopPropagation();
-          onSelect(option)
-        }}
-      >
-        {option}
-      </div>)
-    }
-  </TagsDropdownWrapper>);
-}
-
-const DropdownOverlay = ({ options, onSelect, children }) => {
-  const [showOverlay, setShowOverlay] = useState(false);
-
-  useEffect(() => {
-    const clickHandler = () => {
-      setShowOverlay(false);
-    };
-
-    document.addEventListener('click', clickHandler);
-
-    return () => document.removeEventListener('click', clickHandler);
-  }, []);
-
-  const handleClickOverlayContainer = useCallback((e) => {
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-    setShowOverlay(true);
-  }, [showOverlay]);
-
-  const handleSelect = (option) => {
-    onSelect(option);
-    setShowOverlay(false);
-  }
-
-  return <OverlayWrapper onClick={handleClickOverlayContainer}>
-    {children}
-    {showOverlay && <TagsDropdown
-        options={options}
-        onSelect={handleSelect}
-      />
-    }
-  </OverlayWrapper>;
-}
-// End overlay
-
 const NewTag = ({ onAddNewTag, tagOptions, userTag }) => {
-  const [addNewTagMode, setAddNewTagMode] = useState(false);
+  const themeContext = useContext(ThemeContext);
 
-  return (<DropdownOverlay options={tagOptions} onSelect={onAddNewTag}>
-    <AddButton color={userTag ? window.USER_TAG_COLOR : window.COURSE_TAG_COLOR} />
-  </DropdownOverlay>);
+  return (<Dropdown overlayPosition={{ bottom: 8, left: 8 }} options={tagOptions} onSelect={onAddNewTag}>
+    <AddButton color={userTag ? themeContext.userTag : themeContext.courseTag} />
+  </Dropdown>);
 }
 
 export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {

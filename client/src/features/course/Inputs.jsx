@@ -71,10 +71,6 @@ export default ({
   const [user, setUser] = useUser();
   const [course, setCourse] = useCourse();
 
-  if (!course) {
-    return <LoadingPlaceholder />;
-  }
-
   const handleCreateUserTag = useCallback(newTag => {
     apiFetch(apiRoutes.createUserTag(course._id), {
       tag: newTag
@@ -98,6 +94,10 @@ export default ({
       setCourse(updatedCourse);
     }).catch(console.log);
   });
+
+  if (!course) {
+    return <LoadingPlaceholder />;
+  }
 
   return (
     <InputContainer>

@@ -33,7 +33,7 @@ const CardViewer = styled.div`
     flex: 1;
     display: none;
 
-    @media screen and (min-width: 992px) {
+    @media screen and (min-width: ${props => props.theme.screen.l}px) {
       display: block;
     }
   }

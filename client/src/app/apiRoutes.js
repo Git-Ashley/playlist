@@ -17,6 +17,7 @@ const apiRoutes = {
   addMem: () => '/mem/add',
   deleteMem: () => '/mem/delete',
 
+  courses: () => '/courses',
   course: (courseId) => `/course/${courseId}`,
   createUserTag: (courseId) => `/course/${courseId}/tag/create`,
   createCourseTag: (courseId) => `/course/${courseId}/course-tag/create`,

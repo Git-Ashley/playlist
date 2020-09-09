@@ -28,7 +28,7 @@ const CardRowContainer = styled.div`
     "tags";
   grid-gap: 0px;
 
-  @media screen and (min-width: 992px) {
+  @media screen and (min-width: ${props => props.theme.screen.l}px) {
     grid-template-columns: 100px 200px 200px fit-content(200px);
     grid-template-areas:
       "value def review_date mems"
@@ -62,7 +62,7 @@ const CardRowContainer = styled.div`
 
   & > .def {
     grid-area: def;
-    @media screen and (min-width: 992px) {
+    @media screen and (min-width: ${props => props.theme.screen.l}px) {
       padding: 30px;
     }
   }
@@ -136,13 +136,13 @@ const CardTableContainer = styled.div`
 `;
 
 const TableHeader = styled.div`
-  @media screen and (min-width: 992px) {
+  @media screen and (min-width: ${props => props.theme.screen.l}px) {
     position: sticky;
     top: 0;
   }
   height: 20px;
   width: 100%;
-  background-color: #d2b58e;
+  background-color: ${props => props.theme.subHeader};
 `;
 
 const SearchInput = styled.span`

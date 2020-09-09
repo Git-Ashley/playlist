@@ -6,7 +6,7 @@ const StyledPill = styled.div`
   padding: 5px;
   border: 1px solid black;
   border-radius: 10px;
-  background: ${({ userTag }) => userTag ? window.USER_TAG_COLOR : window.COURSE_TAG_COLOR};
+  background: ${({ userTag, theme }) => userTag ? theme.userTag : theme.courseTag};
   cursor: default;
 `;
 

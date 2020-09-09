@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import useWindowSize from 'hooks/useWindowSize';
+import { ThemeContext } from 'styled-components';
 
-const EditableTextContainer = styled.div`
+const DisplayContainer = styled.div`
   position: relative;
 `;
 
 export default ({ onAction, showActionOnHover = true, children, ActionComponent }) => {
   const [showActionComponent, setShowActionComponent] = useState();
+  const themeContext = useContext(ThemeContext);
   const size = useWindowSize();
 
-  if (size.width > window.LARGE) {
-    return <EditableTextContainer onMouseEnter={() => setShowActionComponent(true)} onMouseLeave={() => setShowActionComponent(false)}>
+  if (size.width > themeContext.screen.l) {
+    return <DisplayContainer onMouseEnter={() => setShowActionComponent(true)} onMouseLeave={() => setShowActionComponent(false)}>
       {children}
       {showActionComponent || !showActionOnHover ? <ActionComponent showActionOnHover={showActionOnHover} onClick={onAction} /> : ''}
-    </EditableTextContainer>;
+    </DisplayContainer>;
   } else {
-    return <EditableTextContainer onClick={() => setShowActionComponent(!showActionComponent)}>
+    return <DisplayContainer onClick={() => setShowActionComponent(!showActionComponent)}>
       {children}
       {showActionComponent || !showActionOnHover ? <ActionComponent showActionOnHover={showActionOnHover} onClick={onAction} /> : ''}
-    </EditableTextContainer>
+    </DisplayContainer>
   }
 };

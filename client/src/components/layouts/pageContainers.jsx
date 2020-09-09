@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 const StyledNarrowStandardFlexContainer = styled.div`
   display: flex;
+  height: 100%;
 
   & > :nth-child(1) {
     flex: 0;
@@ -10,19 +11,22 @@ const StyledNarrowStandardFlexContainer = styled.div`
 
   & > :nth-child(2) {
     flex: 1;
+    max-width: 100%;
+
   }
 
   & > :nth-child(3) {
     flex: 0;
   }
 
-  @media screen and (min-width: 992px) {
+  @media screen and (min-width: ${props => props.theme.screen.l}px) {
     & > :nth-child(1) {
       flex: 1;
     }
 
     & > :nth-child(2) {
       flex: 0 0 992px;
+      width: 992px;
     }
 
     & > :nth-child(3) {

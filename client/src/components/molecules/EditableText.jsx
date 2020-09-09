@@ -8,7 +8,7 @@ const StyledText = styled.div`
 `;
 
 const EditSymbol = styled.span`
-  @media screen and (min-width: 992px) {
+  @media screen and (min-width: ${props => props.theme.screen.l}px) {
     display: inline;
   }
 
