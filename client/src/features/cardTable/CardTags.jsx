@@ -5,7 +5,7 @@ import styled, { ThemeContext } from 'styled-components';
 import { useDispatch } from "react-redux";
 import { addTag, removeTag, addTagToBlueprint } from 'data/cardsSlice';
 import AddButton from 'components/atoms/buttons/AddButton';
-import Dropdown from 'components/molecules/Dropdown';
+import ListOverlay from 'components/atoms/ListOverlay';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
 import EditablePill from 'components/molecules/EditablePill';
@@ -22,9 +22,9 @@ const TagsContainer = styled.div`
 const NewTag = ({ onAddNewTag, tagOptions, userTag }) => {
   const themeContext = useContext(ThemeContext);
 
-  return (<Dropdown overlayPosition={{ bottom: 8, left: 8 }} options={tagOptions} onSelect={onAddNewTag}>
+  return (<ListOverlay overlayPosition={{ bottom: 8, left: 8 }} options={tagOptions} onSelect={onAddNewTag}>
     <AddButton color={userTag ? themeContext.userTag : themeContext.courseTag} />
-  </Dropdown>);
+  </ListOverlay>);
 }
 
 export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
-import Select from 'react-select';
+import Select from 'components/molecules/Select';
 import CreateInput from 'components/molecules/CreateInput';
 import apiFetch from 'util/apiFetch';
 import apiRoutes from 'app/apiRoutes';
@@ -136,24 +136,24 @@ export default ({
         <label>Review status</label>
         <Select
           options={reviewModeOptions}
-          onChange={({value}) => setReviewDateMode(value)}
-          value={reviewModeOptions.find(({ value }) => value === reviewDateMode)}
+          onSelect={setReviewDateMode}
+          value={reviewDateMode}
         />
       <hr />
         <label>Sort by</label>
         <Select
           options={sortFieldOptions}
-          onChange={({value}) => setSortField(value)}
-          value={sortFieldOptions.find(({ value }) => value === sortField)}
+          onSelect={setSortField}
+          value={sortField}
         />
         <Select
           options={sortModeOptions}
-          onChange={({value}) => setSortMode(value)}
-          value={sortModeOptions.find(({ value }) => value === sortMode)}
+          onSelect={setSortMode}
+          value={sortMode}
         />
       <hr />
       <CheckboxInput
-        onChange={check => onTagCheck(!check, 'ignore', excludeUserTags, setExcludeUserTags)}
+        onSelect={check => onTagCheck(!check, 'ignore', excludeUserTags, setExcludeUserTags)}
         label='Show ignored'
         checked={!excludeUserTags.includes('ignore')}
       />
