@@ -400,6 +400,10 @@ router.get('/course/:courseId', async (req, res) => {
   );
   res.json(course);
 });
+router.get('/courses', async (req, res) => {
+  const courses = await Course.find({});
+  res.json(courses);
+});
 
 const combineCardAndStats = (card, stats = { _doc: {} }, user) => {
   const userCard = { ...stats._doc, ...card._doc };
