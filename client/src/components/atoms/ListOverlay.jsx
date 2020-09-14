@@ -36,8 +36,7 @@ const OptionsOverlay = ({ options = [], onSelect, position, component, ...otherP
         {...otherProps}
         position={position}
         onClick={e => {
-          e.stopPropagation();
-          onSelect();
+          onSelect(null, e);
         }
       }>
         {component}
@@ -50,7 +49,8 @@ const OptionsOverlay = ({ options = [], onSelect, position, component, ...otherP
           key={option}
           onClick={e => {
             e.stopPropagation();
-            onSelect(option);
+            e.nativeEvent.stopImmediatePropagation();
+            onSelect(option, e);
           }}
         >
           {option}
@@ -64,7 +64,8 @@ const OptionsOverlay = ({ options = [], onSelect, position, component, ...otherP
           key={label}
           onClick={e => {
             e.stopPropagation();
-            onSelect(value);
+            e.nativeEvent.stopImmediatePropagation();
+            onSelect(value, e);
           }}
         >
           {label}
@@ -91,10 +92,11 @@ export default ({
 
   useEffect(() => {
     const clickHandler = () => {
+      console.log('in use effect')
       setShowOverlay(false);
     };
 
-    document.addEventListener('click', clickHandler);
+    document.addEventListener('click', clickHandler, false);
 
     return () => document.removeEventListener('click', clickHandler);
   }, []);
@@ -102,22 +104,21 @@ export default ({
   const handleShowOverlayContainer = useCallback((e) => {
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
-    setShowOverlay(true);
-  }, []);
+    setShowOverlay(!showOverlay);
+  }, [showOverlay]);
 
-  const handleSelect = (option) => {
-    onSelect(option);
+  const handleSelect = (option, e) => {
+    console.log('in handle select')
+    onSelect(option, e);
     setShowOverlay(false);
   }
 
   const actionProps = showOnHover ? {
     onMouseEnter: handleShowOverlayContainer,
     onMouseLeave: () => setShowOverlay(false)
-  } : {
-    onClick: handleShowOverlayContainer
-  };
+  } : {};
 
-  return <OverlayWrapper {...actionProps}>
+  return <OverlayWrapper {...actionProps} onClick={handleShowOverlayContainer}>
     {children}
     {showOverlay && <OptionsOverlay
         position={overlayPosition}

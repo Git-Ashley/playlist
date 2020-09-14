@@ -72,7 +72,7 @@ export default ({ setTheme }) => {
             >
               <div onClick={() => console.log('logout!')}>Logout</div>
               <NestedDropdown
-                onClick={() => console.log('some theme thing')}
+                persistOverlay
                 label="Theme"
               >
                 <div onClick={() => console.log('some theme thing')}>NESTED OPTION 1</div>

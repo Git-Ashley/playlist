@@ -71,7 +71,12 @@ const NestedDropdownArrow = styled(LabelWithArrowStyle)`
   height: unset;
 `;
 
-export const NestedDropdown = ({ label, children, onClick, width = 120 }) => {
+export const NestedDropdown = ({
+  label,
+  children,
+  width = 120,
+  persistOverlay = false,
+}) => {
   const wrapperRef = useRef(null);
   const [wrapperWidth, setWrapperWidth] = useState(null);
 
@@ -86,9 +91,20 @@ export const NestedDropdown = ({ label, children, onClick, width = 120 }) => {
     component={children}
     overlayPosition={{ top: 0, right: wrapperWidth + 10 }}//Use forward ref on ListOVerlay if the padding of the option items becomes variable
     width={width}
+    onSelect={(option, e) => {
+      if (persistOverlay) {
+        console.log('persistOVerlay.')
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }
+    }}
     showOnHover
   >
-    <NestedDropdownArrow ref={wrapperRef} arrowRightAlign arrowRotation={-90}>
+    <NestedDropdownArrow
+      ref={wrapperRef}
+      arrowRightAlign
+      arrowRotation={-90}
+    >
       <BsFillCaretDownFill />
       <div>
         {label}
