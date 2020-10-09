@@ -3,7 +3,12 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import apiRoutes from 'app/apiRoutes';
 import styled, { ThemeContext } from 'styled-components';
 import { useDispatch } from "react-redux";
-import { addTag, removeTag, addTagToBlueprint } from 'data/cardsSlice';
+import {
+  addTag,
+  removeTag,
+  addTagToBlueprint,
+  removeTagFromBlueprint,
+} from 'data/cardsSlice';
 import AddButton from 'components/atoms/buttons/AddButton';
 import ListOverlay from 'components/atoms/ListOverlay';
 import { useUser } from 'app/UserContext';
@@ -16,6 +21,8 @@ const TagsContainer = styled.div`
 
   & > * {
     margin: 0 5px 5px 0;
+    vertical-align: middle;
+    display: inline-block;
   }
 `;
 
@@ -42,22 +49,22 @@ export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
     dispatch(addTag(cardId, tag));
   }, []);
   const removeUserTagFromCardHandler = useCallback((tag) => {
-    console.log('Remove tag:', tag);
-  }, []);//dispatch(removeUserTagFromCard(card._id, tag));
+    dispatch(removeTag(cardId, tag));
+  }, []);
 
   const handleAddCourseTag = useCallback((tag) => {
     dispatch(addTagToBlueprint(cardId, tag));
   }, []);
   const removeCourseTagFromCardHandler = useCallback((tag) => {
-    console.log('Remove tag:', tag);
-  }, []);//dispatch(removeUserTagFromCard(card._id, tag));
+    dispatch(removeTagFromBlueprint(cardId, tag));
+  }, []);
 
   return <TagsContainer {...otherProps}>
     {courseTags.map(tag =>
       <EditablePill
         key={tag}
         text={tag}
-        onDelete={() => removeUserTagFromCardHandler(tag)}
+        onDelete={() => removeCourseTagFromCardHandler(tag)}
       />
     )}
     <NewTag onAddNewTag={handleAddCourseTag} tagOptions={courseTagOptions} />

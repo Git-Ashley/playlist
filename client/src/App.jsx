@@ -11,7 +11,7 @@ import UserProfile from 'features/userProfile';
 import apiRoutes from 'app/apiRoutes';
 import apiFetch from 'util/apiFetch';
 import LoadingPlaceholder from 'components/molecules/LoadingPlaceholder';
-import { comfortTheme } from 'app/theme';
+import { defaultTheme } from 'app/theme';
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
@@ -26,7 +26,7 @@ const AppContent = styled.div`
 
 export default () => {
   const [user, setUser] = useState(null);
-  const [theme, setTheme] = useState(comfortTheme);
+  const [theme, setTheme] = useState(defaultTheme);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {

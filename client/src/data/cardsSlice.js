@@ -11,6 +11,15 @@ export const cardsSlice = createSlice({
       const updatedCard = action.payload;
       state[updatedCard._id] = updatedCard;
     },
+    updateCard: (state, action) => {
+      const cardId = action.payload._id;
+      const updateFields = action.payload;
+      const updatedCard = {
+        ...state[cardId],
+        ...updateFields,
+      };
+      state[cardId] = updatedCard;
+    },
     setMems: (state, action) => {
       const { updatedMems, cardId } = action.payload;
       const card = state[cardId];
@@ -50,7 +59,6 @@ export const updateCard = (cardId, updates) => dispatch => {
 export const updateBlueprint = (cardId, updates) => dispatch => {
   return apiFetch(apiRoutes.updateBlueprint(cardId), updates)
     .then(card => {
-      console.log('blueprint updated:', card);
       return dispatch(sliceActions.setCard(card));
     })
     .catch(console.log);
@@ -63,6 +71,16 @@ export const addTagToBlueprint = (cardId, tag) => (dispatch, getState) => {
     return;
   }
   const updatedTags = [...currentCard.course_tags, tag];
+  dispatch(updateBlueprint(cardId, { course_tags: updatedTags }));
+};
+
+export const removeTagFromBlueprint = (cardId, tag) => (dispatch, getState) => {
+  const state = getState();
+  const currentCard = selectCard(cardId)(state);
+  if (!currentCard.course_tags.includes(tag)) {
+    return;
+  }
+  const updatedTags = currentCard.course_tags.filter(val => val !== tag);
   dispatch(updateBlueprint(cardId, { course_tags: updatedTags }));
 };
 
@@ -79,7 +97,12 @@ export const addTag = (cardId, tag) => (dispatch, getState) => {
 export const removeTag = (cardId, tag) => (dispatch, getState) => {
   const state = getState();
   const currentCard = selectCard(cardId)(state);
-  //TODO
+  if (!currentCard.tags.includes(tag)) {
+    return;
+  }
+
+  const updatedTags = currentCard.tags.filter(val => val !== tag);
+  dispatch(updateCard(cardId, { tags: updatedTags }));
 };
 
 export const ignoreCard = cardId => dispatch => {
@@ -110,10 +133,21 @@ export const addMem = (data, cardId, img = false) => dispatch => {
 };
 
 export const deleteMem = (id, cardId) => dispatch => {
-  console.log('removing mem:', id);
   apiFetch(apiRoutes.deleteMem(), { memId: id, cardId })
     .then(updatedMems => {
       dispatch(sliceActions.setMems({ updatedMems, cardId }));
+    });
+};
+
+export const unlearnCard = cardId => dispatch => {
+  apiFetch(apiRoutes.unlearnCard(cardId), {})
+    .then(updatedFields => {
+      dispatch(sliceActions.updateCard({
+        ...updatedFields,
+        level: null,
+        review_date: null,
+        _id: cardId,
+      }));
     });
 };
 

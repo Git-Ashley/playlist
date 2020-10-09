@@ -16,7 +16,7 @@ const LabelWithArrowStyle = styled.div`
   color: ${props => props.color};
   width: ${props => props.width}px;
   height: 30px;
-  border-radius: 3px;
+  border-radius: 5px;
 
   > :nth-child(1) {
     margin: 0 4px;
@@ -93,7 +93,6 @@ export const NestedDropdown = ({
     width={width}
     onSelect={(option, e) => {
       if (persistOverlay) {
-        console.log('persistOVerlay.')
         e.stopPropagation();
         e.nativeEvent.stopImmediatePropagation();
       }

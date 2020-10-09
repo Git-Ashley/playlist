@@ -4,7 +4,6 @@ import ActionableDisplay from 'components/atoms/ActionableDisplay';
 
 const StyledPill = styled.div`
   padding: 5px;
-  border: 1px solid black;
   border-radius: 10px;
   background: ${({ userTag, theme }) => userTag ? theme.userTag : theme.courseTag};
   cursor: default;

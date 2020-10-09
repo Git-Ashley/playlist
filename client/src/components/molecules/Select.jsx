@@ -56,7 +56,11 @@ export default ({
       label = options.find(option => option === value);
     } else {
       const option = options.find(option => option.value === value);
-      label = option.label;
+      if (option) {
+        label = option.label;
+      } else {
+        label = 'Not learnt';
+      }
     }
   }
   return (

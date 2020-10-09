@@ -466,7 +466,8 @@ router.post('/card/:cardId/update', async (req, res) => {
   const level = req.body.level;
 
   if (Array.isArray(tags)) {
-    updates.$addToSet = { tags };
+    // Remove dupes
+    updates.tags = [...new Set(tags).values()];
   }
 
   if (level) {
@@ -493,6 +494,33 @@ router.post('/card/:cardId/update', async (req, res) => {
   res.json(userCard);
 });
 
+router.post('/card/:cardId/unlearn', async (req, res) => {
+  const userId = req.user.id;
+  const cardId = req.params.cardId;
+  const courseId = req.courseId;
+
+  const userCardInfo = await UserCardStats.findOneAndUpdate(
+    {
+      user_id: userId,
+      course_id: courseId,
+      card_id: cardId,
+    },
+    {
+      $unset: { level: "", review_date: "" },
+    },
+    {
+      new: true,
+      upsert: true,
+      projection: {
+        ...userCardProjectionExclude,
+        _id: 0,
+      }
+    }
+  );
+
+  res.json(userCardInfo);
+});
+
 router.post('/card/:cardId/blueprint', async (req, res) => {
   const userId = req.user.id;
   const courseId = req.courseId;
@@ -505,7 +533,7 @@ router.post('/card/:cardId/blueprint', async (req, res) => {
   if (newDef) {
     updates.definition = newDef;
   } else if (Array.isArray(courseTags)) {
-    updates.$addToSet = { course_tags: courseTags };
+    updates.course_tags = [...new Set(courseTags).values()];
   }
 
   const updatedCard = await Card.findOneAndUpdate(

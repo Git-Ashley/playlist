@@ -4,17 +4,20 @@ import styled from 'styled-components';
 import ReviewActions from './CardReviewActions';
 import Mems from './Mems';
 import CardTags from './CardTags';
+import Button from 'components/atoms/buttons/Button';
 import EditableText from 'components/molecules/EditableText';
 import { updateBlueprint } from 'data/cardsSlice';
 
 const CardRowContainer = styled.div`
-  background-color: ${props => props.ignored ? '#e4955b' : 'inherit'};
-  border-bottom: 1px solid black;
-  border-right: 1px solid black;
+  background-color: ${props => props.ignored ? '#e4955b' : props.theme.primary};
+  border-radius: 5px;
   margin: 10px 0;
   display: grid;
 
+  box-shadow: 0 50px 100px rgba(50,50,93,.1), 0 15px 35px rgba(50,50,93,.15), 0 5px 15px rgba(0,0,0,.1);
+
   width: 100%;
+
   grid-template-columns: auto;
   grid-template-rows: auto;
   grid-template-areas:
@@ -24,29 +27,26 @@ const CardRowContainer = styled.div`
     "secondary_index"
     "review_date"
     "controls"
-    "mems"
-    "tags";
+    "tags"
+    "mems";
   grid-gap: 0px;
 
   @media screen and (min-width: ${props => props.theme.screen.l}px) {
-    grid-template-columns: 100px 200px 200px fit-content(200px);
+    grid-template-columns: 100px 200px 200px fit-content(300px);
     grid-template-areas:
-      "value def review_date mems"
-      "value def controls mems"
-      "value def controls mems"
-      "tags primary_index other mems"
-      "tags secondary_index other mems"
-      "tags misc1 other mems";
+      "value def             review_date mems"
+      "value def             controls    mems"
+      "value def             controls    mems"
+      "tags  primary_index   controls    mems"
+      "tags  secondary_index controls    mems"
+      "tags  misc1           controls    mems";
     width: auto;
   }
 
   & > * {
     display: flex;
-    justify-content: center;
+    margin: auto;
     text-align: center;
-    align-items: center;
-    border-top: 1px solid black;
-    border-left: 1px solid black;
     padding: 5px;
   }
 
@@ -58,6 +58,7 @@ const CardRowContainer = styled.div`
   & > .tags {
     grid-area: tags;
     padding: 5px 0 0 5px;
+    display: block;
   }
 
   & > .def {
@@ -81,11 +82,25 @@ const CardRowContainer = styled.div`
 
   & > .controls {
     grid-area: controls;
+    justify-content: space-around;
   }
 
   & > .mems {
+    position: relative;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+
+    @media screen and (min-width: ${props => props.theme.screen.l}px) {
+      border-top-right-radius: inherit;
+      border-bottom-left-radius: unset;
+    }
+
     grid-area: mems;
-    padding: 10px;
+    padding: 0 0 20px 0;
+    max-height: 400px;
+    overflow-y: hidden;
+    background-color: ${props => props.theme.primary60};
+    margin: initial;
   }
 `;
 
@@ -115,7 +130,7 @@ const CardRow = ({ card, i }) => {
       ) : (
         <>
           <div className='def'>
-            <button onClick={() => setShow(true)} style={{height:25}}>show</button>
+            <Button onClick={() => setShow(true)} style={{height:25}}>Reveal</Button>
           </div>
           <div className='tags' />
         </>

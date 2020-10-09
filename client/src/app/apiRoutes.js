@@ -11,6 +11,7 @@ const apiRoutes = {
   cardsSearch: () => '/cards/search',
   updateCard: cardId => `/card/${cardId}/update`,
   reviewCard: cardId => `/card/${cardId}/review`,
+  unlearnCard: cardId => `/card/${cardId}/unlearn`,
   updateBlueprint: cardId => `/card/${cardId}/blueprint`,
 
   mems: () => '/mems',

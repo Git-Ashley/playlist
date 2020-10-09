@@ -7,7 +7,7 @@ const OverlayWrapper = styled.div`
 
 const OptionsWrapper = styled.div`
   position: absolute;
-  ${({ position }) => Object.entries(position).map(([key, val]) =>
+  ${({ position = [] }) => Object.entries(position).map(([key, val]) =>
     `${key}: ${val}px;`
   )}
 
@@ -92,11 +92,10 @@ export default ({
 
   useEffect(() => {
     const clickHandler = () => {
-      console.log('in use effect')
       setShowOverlay(false);
     };
 
-    document.addEventListener('click', clickHandler, false);
+    document.addEventListener('click', clickHandler);
 
     return () => document.removeEventListener('click', clickHandler);
   }, []);
@@ -108,7 +107,6 @@ export default ({
   }, [showOverlay]);
 
   const handleSelect = (option, e) => {
-    console.log('in handle select')
     onSelect(option, e);
     setShowOverlay(false);
   }
@@ -118,8 +116,10 @@ export default ({
     onMouseLeave: () => setShowOverlay(false)
   } : {};
 
-  return <OverlayWrapper {...actionProps} onClick={handleShowOverlayContainer}>
-    {children}
+  return <OverlayWrapper {...actionProps}>
+    <div onClick={handleShowOverlayContainer}>
+      {children}
+    </div>
     {showOverlay && <OptionsOverlay
         position={overlayPosition}
         options={options}

@@ -1,24 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
+import { BsPlus } from 'react-icons/bs';
 
 const StyledAddBtn = styled.div`
   font-size: 25px;
   border-radius: 50px;
-  border: 1px solid black;
-  position: relative;
-  width: 20px;
-  height: 20px;
+  width: ${props => props.size}px;
+  height: ${props => props.size}px;
   cursor: pointer;
   background-color: ${({ color }) => color};
 
-  &:before {
-    position: absolute;
-    top: -6px;
-    left: 3px;
-    content: '+';
+  & > svg {
+    vertical-align: top;
   }
 `;
 
-export default ({ onClick = () => {}, color }) => {
-  return <StyledAddBtn onClick={onClick} color={color} />
-}
+export default ({ onClick = () => {}, color, size  = 20}) => (
+  <StyledAddBtn size={size} onClick={onClick} color={color}>
+    <BsPlus size={size} />
+  </StyledAddBtn>
+)
