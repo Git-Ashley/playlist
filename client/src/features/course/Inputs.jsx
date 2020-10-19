@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
@@ -7,8 +7,42 @@ import CreateInput from 'components/molecules/CreateInput';
 import apiFetch from 'util/apiFetch';
 import apiRoutes from 'app/apiRoutes';
 import LoadingPlaceholder from 'components/molecules/LoadingPlaceholder';
+import { CardOutline } from 'styles/Cards';
+import Text from 'styles/Text';
+import Button from 'components/atoms/buttons/Button';
 
-const InputContainer = styled.div`
+const InputContainer = styled(CardOutline)`
+  padding: 10px;
+  width: 270px;
+
+  & > * {
+    margin-bottom: 10px;
+  }
+
+  & >:last-child {
+    margin: auto;
+  }
+
+  & > :not(:nth-child(n+3)) {
+    display: none;
+  }
+
+  @media screen and (min-width: ${props => props.theme.screen.l}px) {
+    & > :not(:nth-child(n+3)) {
+      display: block;
+    }
+  }
+`;
+
+const SearchInput = styled.div`
+  margin: 10px;
+
+  & >:nth-child(1) {
+    width: 30px;
+  }
+
+  & >:nth-child(2) {
+  }
 `;
 
 const onTagCheck = (check, tag, tagSet, setTagSet) => {
@@ -34,6 +68,17 @@ const CheckboxInput = ({ label, checked = false, onChange, htmlFor }) => (
   </div>
 );
 
+const QuickFilters = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  margin: auto;
+
+  & > * {
+    width: 75px;
+    text-align: center;
+  }
+`;
+
 const reviewModeOptions = [
   { label: 'All', value: 'ALL' },
   { label: 'Needs review', value: 'BEFORE' },
@@ -54,6 +99,7 @@ const sortModeOptions = [
 ];
 
 export default ({
+  count,
   excludeUserTags,
   includeCourseTags,
   includeUserTags,
@@ -67,7 +113,11 @@ export default ({
   setSortField,
   setSortMode,
   onApply,
+  onSelectLearn,
+  onSelectReview,
+  onSearchKanji,
 }) => {
+  const [kanji, setKanji] = useState('');
   const [user, setUser] = useUser();
   const [course, setCourse] = useCourse();
 
@@ -101,8 +151,17 @@ export default ({
 
   return (
     <InputContainer>
+      <Text.SubHeader bold center>{count} Cards</Text.SubHeader>
+      <QuickFilters>
+        <Button onClick={onSelectLearn}>Learn</Button>
+        <Button onClick={onSelectReview}>Review</Button>
+      </QuickFilters>
+      <SearchInput>
+        <input type='text' value={kanji} placeholder='kanji' onChange={e => setKanji(e.target.value)}/>
+        <button onClick={() => onSearchKanji(kanji)}>🔎</button>
+      </SearchInput>
       <div>
-        <label>Course tags</label>
+        <Text.SubHeader>Course tags</Text.SubHeader>
         {course.tags.map(tag =>
           <CheckboxInput
             key={tag}
@@ -113,9 +172,8 @@ export default ({
         )}
         <CreateInput onCreate={handleCreateCourseTag} />
       </div>
-      <hr />
       <div>
-        <label>User tags</label>
+        <Text.SubHeader>User tags</Text.SubHeader>
         {user.courses[course._id].tags.map(tag =>
           <CheckboxInput
               key={tag}
@@ -132,15 +190,16 @@ export default ({
         />
         <CreateInput onCreate={handleCreateUserTag} />
       </div>
-      <hr />
-        <label>Review status</label>
+      <div>
+        <Text.SubHeader>Review status</Text.SubHeader>
         <Select
           options={reviewModeOptions}
           onSelect={setReviewDateMode}
           value={reviewDateMode}
         />
-      <hr />
-        <label>Sort by</label>
+      </div>
+      <div>
+        <Text.SubHeader>Sort by</Text.SubHeader>
         <Select
           options={sortFieldOptions}
           onSelect={setSortField}
@@ -151,13 +210,13 @@ export default ({
           onSelect={setSortMode}
           value={sortMode}
         />
-      <hr />
+      </div>
       <CheckboxInput
         onSelect={check => onTagCheck(!check, 'ignore', excludeUserTags, setExcludeUserTags)}
         label='Show ignored'
         checked={!excludeUserTags.includes('ignore')}
       />
-      <button type='button' onClick={onApply}>Apply</button>
+      <Button type='button' onClick={onApply}>Apply</Button>
     </InputContainer>
   );
 }

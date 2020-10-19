@@ -5,6 +5,7 @@ import { getCards, selectCards } from "data/cardsSlice";
 import CardTable from 'features/cardTable';
 import Inputs from './Inputs';
 import { CourseProvider } from 'app/CourseContext';
+import { MedStandardPageContainer } from 'components/layouts/pageContainers';
 
 const useSearchCards = () => {
   const [searchOrder, setSearchOrder] = useState([]);
@@ -134,36 +135,38 @@ export default () => {
 
   const cardSlice = cards.slice(0, 50*page);
   return (
-    <CourseProvider>
-      <CardViewer>
-        <div>
-          <Inputs
-            onApply={apply}
-            {...{
-              excludeUserTags,
-              includeCourseTags,
-              includeUserTags,
-              reviewDateMode,
-              sortField,
-              sortMode,
-              setExcludeUserTags,
-              setIncludeUserTags,
-              setIncludeCourseTags,
-              setReviewDateMode,
-              setSortField,
-              setSortMode,
-            }}
+    <MedStandardPageContainer>
+      <CourseProvider>
+        <CardViewer>
+          <div>
+            <Inputs
+              onApply={apply}
+              onSearchKanji={kanji => searchCards({ value: kanji })}
+              {...{
+                count,
+                excludeUserTags,
+                includeCourseTags,
+                includeUserTags,
+                reviewDateMode,
+                sortField,
+                sortMode,
+                setExcludeUserTags,
+                setIncludeUserTags,
+                setIncludeCourseTags,
+                setReviewDateMode,
+                setSortField,
+                setSortMode,
+                onSelectLearn,
+                onSelectReview,
+              }}
+            />
+          </div>
+          <CardTable
+            cards={cardSlice}
+            onLoadMore={() => setPage(page+1)}
           />
-        </div>
-        <CardTable
-          onSelectLearn={onSelectLearn}
-          onSelectReview={onSelectReview}
-          cards={cardSlice}
-          count={count}
-          onLoadMore={() => setPage(page+1)}
-          onSearchKanji={kanji => searchCards({ value: kanji })}
-        />
-      </CardViewer>
-    </CourseProvider>
+        </CardViewer>
+      </CourseProvider>
+    </MedStandardPageContainer>
   );
 };

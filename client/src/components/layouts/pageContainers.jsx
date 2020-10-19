@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useContext } from 'react';
+import styled, { ThemeContext } from 'styled-components';
 
-const StyledNarrowStandardFlexContainer = styled.div`
+const StyledStandardFlexContainer = styled.div`
   display: flex;
   height: 100%;
 
@@ -19,14 +19,14 @@ const StyledNarrowStandardFlexContainer = styled.div`
     flex: 0;
   }
 
-  @media screen and (min-width: ${props => props.theme.screen.l}px) {
+  @media screen and (min-width: ${props => props.width}px) {
     & > :nth-child(1) {
       flex: 1;
     }
 
     & > :nth-child(2) {
-      flex: 0 0 992px;
-      width: 992px;
+      flex: 0 0 ${props => props.width}px;
+      width: ${props => props.width}px;
     }
 
     & > :nth-child(3) {
@@ -34,10 +34,27 @@ const StyledNarrowStandardFlexContainer = styled.div`
     }
   }
 `;
-export const NarrowStandardPageContainer = ({ children }) => (
-  <StyledNarrowStandardFlexContainer>
-    <div />
-    <div>{children}</div>
-    <div />
-  </StyledNarrowStandardFlexContainer>
-)
+
+export const NarrowStandardPageContainer = ({ children }) => {
+  const themeContext = useContext(ThemeContext);
+
+  return (
+    <StyledStandardFlexContainer width={themeContext.screen.l}>
+      <div />
+      <div>{children}</div>
+      <div />
+    </StyledStandardFlexContainer>
+  );
+}
+
+export const MedStandardPageContainer = ({ children }) => {
+  const themeContext = useContext(ThemeContext);
+
+  return (
+    <StyledStandardFlexContainer width={1200}>
+      <div />
+      <div>{children}</div>
+      <div />
+    </StyledStandardFlexContainer>
+  );
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const StyledButton = styled.button`
+const StyledButton = styled.div`
   color: ${props => props.color || props.theme.secondaryText};
   background-color: ${props => props.backgroundColor || props.theme.secondary};
   appearance: none;
@@ -10,6 +10,7 @@ const StyledButton = styled.button`
   padding: 12px;
   display: flex;
   align-items: center;
+  justify-content: center;
   font-weight: bold;
   font-family: ${props => props.fontFamily || props.theme.font.family.default};
   cursor: pointer;

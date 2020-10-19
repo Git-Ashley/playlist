@@ -6,15 +6,12 @@ import Mems from './Mems';
 import CardTags from './CardTags';
 import Button from 'components/atoms/buttons/Button';
 import EditableText from 'components/molecules/EditableText';
+import { CardOutline } from 'styles/Cards';
 import { updateBlueprint } from 'data/cardsSlice';
 
-const CardRowContainer = styled.div`
-  background-color: ${props => props.ignored ? '#e4955b' : props.theme.primary};
-  border-radius: 5px;
+const CardRowContainer = styled(CardOutline)`
   margin: 10px 0;
   display: grid;
-
-  box-shadow: 0 50px 100px rgba(50,50,93,.1), 0 15px 35px rgba(50,50,93,.15), 0 5px 15px rgba(0,0,0,.1);
 
   width: 100%;
 
@@ -130,7 +127,7 @@ const CardRow = ({ card, i }) => {
       ) : (
         <>
           <div className='def'>
-            <Button onClick={() => setShow(true)} style={{height:25}}>Reveal</Button>
+            <Button onClick={() => setShow(true)} style={{height:30}}>Reveal</Button>
           </div>
           <div className='tags' />
         </>
@@ -146,44 +143,13 @@ const CardTableContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 0 20px 20px;
 `;
 
-const TableHeader = styled.div`
-  @media screen and (min-width: ${props => props.theme.screen.l}px) {
-    position: sticky;
-    top: 0;
-  }
-  height: 20px;
-  width: 100%;
-  background-color: ${props => props.theme.subHeader};
-`;
-
-const SearchInput = styled.span`
-  margin: 10px;
-
-  & >:nth-child(1) {
-    width: 30px;
-  }
-
-  & >:nth-child(2) {
-  }
-`;
-
 export default ({ cards, onLoadMore, onSearchKanji, onSelectReview, onSelectLearn, count }) => {
-  const [kanji, setKanji] = useState('');
   return (
     <CardTableContainer>
-        <TableHeader style={{textAlign: 'center'}}>
-          <button onClick={onSelectLearn}>Learn</button>
-          <button onClick={onSelectReview}>Review</button>
-          <span>{count} cards</span>
-          <SearchInput>
-            <input type='text' value={kanji} placeholder='kanji' onChange={e => setKanji(e.target.value)}/>
-            <button onClick={() => onSearchKanji(kanji)}>🔎</button>
-          </SearchInput>
-        </TableHeader>
       {cards.map((card, i) => <CardRow i={i} key={card._id} card={card} />)}
       {!cards.length ? (
         <div>No results</div>

@@ -19,3 +19,18 @@ html, body, #root {
 * {
   box-sizing: border-box;
 }
+
+@media screen and (min-width: 444px) {
+  *::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    display: none;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.4);
+    border-radius: 5px;
+  }
+}

@@ -167,7 +167,7 @@ const NewMem = ({ cardId, initOpen = false, ...otherProps }) => {
     {imgFile ? (
       <button onClick={() => console.log('shell')}>🗛</button>
     ) : (
-      <button onClick={() => console.log('shell')}>🖼</button>
+      <button disabled onClick={() => console.log('shell')}>🖼</button>
     )}
   </NewMemContainer>;
 };
