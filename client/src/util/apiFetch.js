@@ -22,6 +22,16 @@ export default (path, payload, ops = {}) => {
   const fetchOptions = Object.assign({}, ops, fetchOps);
 
   return fetch(url, fetchOptions)
-    .then(res => res.json())
-    .catch(console.log)
+    .then(res => {
+      if (res.status >= 400 && res.status < 600) {
+        return res.json().then(json => {throw json;});
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        return res.json();
+      } else {
+        return res.text();
+      }
+    })
 };

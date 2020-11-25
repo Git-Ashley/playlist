@@ -5,10 +5,13 @@ const apiRoutes = {
   setPassword: () => '/user/setpasswd',
 
   localLogin: () => '/auth/local',
+  guestLogin: () => '/user/guestlogin',
   relogin: () => '/auth/login',
+  logout: () => '/auth/logout',
 
   cards: () => '/cards',
   cardsSearch: () => '/cards/search',
+  createCard: data => '/card/create',
   updateCard: cardId => `/card/${cardId}/update`,
   reviewCard: cardId => `/card/${cardId}/review`,
   unlearnCard: cardId => `/card/${cardId}/unlearn`,
@@ -20,6 +23,7 @@ const apiRoutes = {
 
   courses: () => '/courses',
   course: (courseId) => `/course/${courseId}`,
+  createCourse: () => '/course/create',
   createUserTag: (courseId) => `/course/${courseId}/tag/create`,
   createCourseTag: (courseId) => `/course/${courseId}/course-tag/create`,
 };

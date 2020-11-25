@@ -24,6 +24,10 @@ const AppContent = styled.div`
   height: calc(100% - ${props => props.theme.headerHeight}px);
 `;
 
+const CourseRoutes = () => {
+
+}
+
 export default () => {
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(defaultTheme);

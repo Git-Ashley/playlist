@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useContext, useState } from 'react';
+import styled, { ThemeContext } from 'styled-components';
 import AddButton from 'components/atoms/buttons/AddButton';
+import TextEntry from 'components/molecules/TextEntry';
 
-const StyledInput = styled.input`
-  width: 100px;
+const CreateInputContainer = styled.div`
+  display: flex;
+  & > :last-child {
+    margin-left: 20px;
+  }
 `;
 
 export default ({ onCreate }) => {
   const [inputMode, setInputMode] = useState(false);
   const [text, setText] = useState('');
+  const theme = useContext(ThemeContext);
 
   if (inputMode) {
-      return (<div>
-        <StyledInput
-          value={text} onChange={e => setText(e.target.value)}
-        />
-        <button onClick={() => onCreate(text)}>✔</button>
+      return (<CreateInputContainer>
+        <TextEntry onEnter={onCreate} />
         <button onClick={() => setInputMode(false)}>×</button>
-      </div>);
+      </CreateInputContainer>);
   } else {
-    return <AddButton onClick={() => setInputMode(true)} />
+    return <AddButton color={theme.secondaryInput} onClick={() => setInputMode(true)} />
   }
 };

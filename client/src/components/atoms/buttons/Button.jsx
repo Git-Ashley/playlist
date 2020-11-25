@@ -15,6 +15,7 @@ const StyledButton = styled.div`
   font-family: ${props => props.fontFamily || props.theme.font.family.default};
   cursor: pointer;
   text-decoration: none;
+  ${props => props.width ? `width: ${props.width}px;` : ''}
 
   &:focus, &:hover {
     box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.15);

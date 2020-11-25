@@ -15,6 +15,7 @@ const Course = require('./models/card-course-model/course');
 const authInit = require('./routes/auth/init');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const courseRoutes = require('./routes/course');
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
@@ -186,10 +187,7 @@ router.use(cookieParser());
 router.use(authInit);
 router.use('/auth', authRoutes);
 router.use('/user', userRoutes);
-router.use((req, res, next) => {
-  req.courseId = COURSE_ID;
-  next();
-});
+router.use('/course/:courseId', courseRoutes);
 
 /**
  * Mem routes
@@ -218,7 +216,6 @@ router.post('/mem/delete', async (req, res) => {
           .post('http://localhost:33404/memage/delete/')
           .send({ imgUrl: mem.imgUrl });
       const msg = res.body.msg;
-      console.log('msg:', msg);
       await Mem.deleteOne({ _id: memId });
     } catch (err) {
       return res.status(400).json({ msg: err });
@@ -251,7 +248,6 @@ router.post('/mem/add', async (req, res) => {
         .put('http://localhost:33404/memage/')
         .send({ ...imgData });
       const url = res.body.url;
-      console.log('url:', url);
       newMem = await Mem.create({
         imgUrl: url,
         author,
@@ -333,7 +329,6 @@ router.post('/course/:courseId/course-tag/create', async (req, res) => {
  */
 router.post('/cards/search', async (req, res) => {
   const userId = req.user.id;
-  const courseId = req.courseId;
 
   const {
     excludeUserTags = [],
@@ -343,6 +338,7 @@ router.post('/cards/search', async (req, res) => {
     sortField = 'primary_index',
     sortMode = 1,
     reviewDateMode,
+    courseId,
     ...rest
   } = req.body;
 
@@ -353,7 +349,7 @@ router.post('/cards/search', async (req, res) => {
    */
   const query = {
     user_id: mongoose.Types.ObjectId(userId),
-    course_id: mongoose.Types.ObjectId(courseId),
+    course_id: courseId ? mongoose.Types.ObjectId(courseId) : undefined,
     tags: { $nin: excludeUserTags },
     course_tags: { $nin: excludeCourseTags },
     ...rest
@@ -392,12 +388,46 @@ router.post('/cards/search', async (req, res) => {
   });
 });
 
+router.post('/card/create', async (req, res) => {
+  const data = req.body;
+
+  try {
+    const newCard = await Card.create(
+      data,
+      /*{
+        upsert: true,
+        new: true,
+        projection: {
+          ...userCardProjectionExclude,
+        }
+      }*/
+    );
+    return res.json({ msg: 'Card created!' });
+  } catch (e) {
+    console.log('error:', e);
+    return res.status(400).json({ msg: e });
+  }
+});
+
 router.get('/course/:courseId', async (req, res) => {
   const courseId = req.params.courseId;
+
   const course = await Course.findOne(
       { _id: mongoose.Types.ObjectId(courseId) },
       { __v: 0 },
   );
+  res.json(course);
+});
+router.post('/course/create', async (req, res) => {
+  const title = req.body.title;
+  if (typeof title !== 'string' || !title) {
+    return res.status(400).json({ msg: 'Mem not found' });
+  }
+
+  const course = await Course.findOneAndUpdate(
+    { title }, { title }, { new: true, upsert: true }
+  );
+
   res.json(course);
 });
 router.get('/courses', async (req, res) => {
@@ -419,7 +449,6 @@ const combineCardAndStats = (card, stats = { _doc: {} }, user) => {
 router.post('/card/:cardId/review', async (req, res) => {
   const user = req.user;
   const cardId = req.params.cardId;
-  const courseId = req.courseId;
   const level = req.body.level;
   const { denomination, value } = user.default_levels[level];
   const updates = {};
@@ -434,7 +463,6 @@ router.post('/card/:cardId/review', async (req, res) => {
     const userCardInfo = await UserCardStats.findOneAndUpdate(
       {
         user_id: user.id,
-        course_id: courseId,
         card_id: cardId,
       },
       updates,
@@ -459,7 +487,6 @@ router.post('/card/:cardId/update', async (req, res) => {
   //TODO if (level !== 0) { calculate review_date }
   const userId = req.user.id;
   const cardId = req.params.cardId;
-  const courseId = req.courseId;
 
   const updates = {};
   const tags = req.body.tags;
@@ -477,7 +504,6 @@ router.post('/card/:cardId/update', async (req, res) => {
   const userCardInfo = await UserCardStats.findOneAndUpdate(
     {
       user_id: userId,
-      course_id: courseId,
       card_id: cardId,
     },
     updates,
@@ -497,12 +523,10 @@ router.post('/card/:cardId/update', async (req, res) => {
 router.post('/card/:cardId/unlearn', async (req, res) => {
   const userId = req.user.id;
   const cardId = req.params.cardId;
-  const courseId = req.courseId;
 
   const userCardInfo = await UserCardStats.findOneAndUpdate(
     {
       user_id: userId,
-      course_id: courseId,
       card_id: cardId,
     },
     {
@@ -523,7 +547,6 @@ router.post('/card/:cardId/unlearn', async (req, res) => {
 
 router.post('/card/:cardId/blueprint', async (req, res) => {
   const userId = req.user.id;
-  const courseId = req.courseId;
   const cardId = req.params.cardId;
 
   const updates = {};
@@ -544,7 +567,6 @@ router.post('/card/:cardId/blueprint', async (req, res) => {
 
   const userStats = await UserCardStats.findOne({
     user_id: userId,
-    course_id: courseId,
     card_id: cardId,
   });
 
@@ -554,22 +576,3 @@ router.post('/card/:cardId/blueprint', async (req, res) => {
 });
 
 module.exports = router;
-
-
-// $lookup?
-
-
-/**
- *   passport.deserializeUser(function(id, done) {
-    User.
-      findOne({ _id : id }).
-      exec(done);
-  });
- */
-
-
-/**
- *router.post('/unlink/:site', function(req, res){
-    const site = req.params.site;
-    const user = req.user;
- */

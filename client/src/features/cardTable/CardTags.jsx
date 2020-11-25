@@ -1,7 +1,6 @@
 /* eslint-disable-next-line react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import apiRoutes from 'app/apiRoutes';
-import styled, { ThemeContext } from 'styled-components';
 import { useDispatch } from "react-redux";
 import {
   addTag,
@@ -9,30 +8,9 @@ import {
   addTagToBlueprint,
   removeTagFromBlueprint,
 } from 'data/cardsSlice';
-import AddButton from 'components/atoms/buttons/AddButton';
-import ListOverlay from 'components/atoms/ListOverlay';
 import { useUser } from 'app/UserContext';
 import { useCourse } from 'app/CourseContext';
-import EditablePill from 'components/molecules/EditablePill';
-
-const TagsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-
-  & > * {
-    margin: 0 5px 5px 0;
-    vertical-align: middle;
-    display: inline-block;
-  }
-`;
-
-const NewTag = ({ onAddNewTag, tagOptions, userTag }) => {
-  const themeContext = useContext(ThemeContext);
-
-  return (<ListOverlay overlayPosition={{ bottom: 8, left: 8 }} options={tagOptions} onSelect={onAddNewTag}>
-    <AddButton color={userTag ? themeContext.userTag : themeContext.courseTag} />
-  </ListOverlay>);
-}
+import { PillContainer, Pill, NewTag } from 'components/molecules/TagPill';
 
 export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
   const dispatch = useDispatch();
@@ -41,9 +19,6 @@ export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
 
   const userTagOptions = user.courses[course._id].tags;
   const courseTagOptions = course.tags;
-
-  console.log('userTags: ', userTags);
-  console.log('courseTags: ', courseTags);
 
   const handleAddUserTag = useCallback((tag) => {
     dispatch(addTag(cardId, tag));
@@ -59,9 +34,9 @@ export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
     dispatch(removeTagFromBlueprint(cardId, tag));
   }, []);
 
-  return <TagsContainer {...otherProps}>
+  return <PillContainer {...otherProps}>
     {courseTags.map(tag =>
-      <EditablePill
+      <Pill
         key={tag}
         text={tag}
         onDelete={() => removeCourseTagFromCardHandler(tag)}
@@ -69,7 +44,7 @@ export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
     )}
     <NewTag onAddNewTag={handleAddCourseTag} tagOptions={courseTagOptions} />
     {userTags.map(tag =>
-      <EditablePill
+      <Pill
         userTag
         key={tag}
         text={tag}
@@ -77,5 +52,5 @@ export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
       />
     )}
     <NewTag userTag onAddNewTag={handleAddUserTag} tagOptions={userTagOptions} />
-  </TagsContainer>;
+  </PillContainer>;
 }

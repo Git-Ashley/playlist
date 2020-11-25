@@ -14,7 +14,7 @@ const attrs = {
 const UserCardStatsSchema = new Schema(attrs);
 
 UserCardStatsSchema.index(
-  { user_id: 1, course_id: 1, card_id: 1 },
+  { user_id: 1, card_id: 1 },
   { unique: true },
 );
 UserCardStatsSchema.index({ user_id: 1, course_id: 1, tags: 1 }, { sparse: true });

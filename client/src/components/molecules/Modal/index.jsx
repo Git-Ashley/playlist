@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-
+import DeleteOverlay from 'components/molecules/DeleteOverlay';
 
 const ModalContainer = styled.div`
 .App {
@@ -10,36 +10,25 @@ const ModalContainer = styled.div`
 }
 
 .modal-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1040;
     width: 100vw;
     height: 100vh;
-    background-color: #000;
-    opacity: .5;
-}
-
-.modal-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1050;
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    outline: 0;
+    background-color: rgba(0,0,0,0.5);
 }
 
 .modal {
-    z-index: 100;
+    display: inline-block;
     background: white;
     position: relative;
-    margin: 1.75rem auto;
+    max-width: 90vw;
     border-radius: 3px;
-    max-width: 500px;
-    padding: 2rem;
+    padding: 30px 30px 20px;
     overflow: auto;
 }
 
@@ -74,17 +63,13 @@ button {
 `;
 
 export default ({ children, show, onClose }) => show ? ReactDOM.createPortal(
-    <ModalContainer>
-        <div className="modal-overlay"/>
-        <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
-            <div className="modal">
-                <div className="modal-header">
-                    <button type="button" className="modal-close-button" data-dismiss="modal" aria-label="Close" onClick={onClose}>
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div>{children}</div>
-            </div>
+  <ModalContainer>
+    <div className="modal-overlay">
+      <DeleteOverlay showActionOnHover={false} onAction={onClose}>
+        <div className="modal">
+          {children}
         </div>
-    </ModalContainer>, document.body
+      </DeleteOverlay>
+    </div>
+  </ModalContainer>, document.body
 ) : null;

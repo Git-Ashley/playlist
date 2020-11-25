@@ -7,15 +7,19 @@ const CourseContext = createContext(null);
 
 export const CourseProvider = ({ children }) => {
   const { courseId } = useParams();
-  const [course, setCourse] = useState(null);
+  const [course, setCourse] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     apiFetch(apiRoutes.course(courseId))
-      .then(setCourse)
+      .then(course => {
+        setCourse(course);
+        setIsLoading(false);
+      })
       .catch(console.log);
   }, []);
 
-  return (<CourseContext.Provider value={[course, setCourse]}>
+  return (<CourseContext.Provider value={[course, setCourse, isLoading]}>
     {children}
   </CourseContext.Provider>);
 };

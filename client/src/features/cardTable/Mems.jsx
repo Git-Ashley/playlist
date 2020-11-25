@@ -8,7 +8,7 @@ import {useDispatch} from "react-redux";
 import { BsChevronDown, BsPlus, BsFillInfoCircleFill, BsX } from 'react-icons/bs';
 import ActionableDisplay from 'components/atoms/ActionableDisplay';
 import { addMem, deleteMem } from 'data/cardsSlice';
-import Modal from 'components/Modal';
+import Modal from 'components/molecules/Modal';
 
 
 //TODO Make them into large pills, encompaaing the mem. the selecgted_mem is coloured green. click one will make that

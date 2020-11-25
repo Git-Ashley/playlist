@@ -7,7 +7,8 @@ const primaryText = '#111'
 
 const secondary100 = '#2b4658';
 const secondary80 = '#2f3337';
-const secondaryText = 'white'
+const secondaryText = 'white';
+const secondaryInput = '#cfe6f5';
 
 const baseTheme = {
   font: {
@@ -28,8 +29,10 @@ const baseTheme = {
   primary,
   primary80,
   primary60,
+  primaryText,
   secondary: secondary100,
   secondaryText,
+  secondaryInput,
   tertiary,
   mainBackground: tertiary,
   mainHeader: secondary100,

@@ -34,6 +34,7 @@ export const cardsSlice = createSlice({
 const sliceActions = cardsSlice.actions;
 
 export const getCards = searchParams => async (dispatch) => {
+  console.log('searchParams', searchParams)
   const { data, count } = await apiFetch(apiRoutes.cardsSearch(), searchParams, { method: 'POST' });
 
   const cardsOrder = data.map(card => card._id);
@@ -112,10 +113,13 @@ export const ignoreCard = cardId => dispatch => {
 export const reviewCard = (cardId, level) => dispatch => {
   apiFetch(apiRoutes.reviewCard(cardId), { level })
     .then(card => {
-      console.log(card);
       return dispatch(sliceActions.setCard(card));
     })
     .catch(console.log);
+};
+
+export const createCard = data => dispatch => {
+  return apiFetch(apiRoutes.createCard(), data);
 };
 
 export const addMem = (data, cardId, img = false) => dispatch => {

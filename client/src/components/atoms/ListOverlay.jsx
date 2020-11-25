@@ -5,6 +5,10 @@ const OverlayWrapper = styled.div`
   position: relative;
 `;
 
+const NoOptions = styled.div`
+  color: rgba(0,0,0,0.4);
+`;
+
 const OptionsWrapper = styled.div`
   position: absolute;
   ${({ position = [] }) => Object.entries(position).map(([key, val]) =>
@@ -42,6 +46,10 @@ const OptionsOverlay = ({ options = [], onSelect, position, component, ...otherP
         {component}
       </OptionsWrapper>
     );
+  } else if (!options.length) {
+    return (<OptionsWrapper {...otherProps} position={position}>
+      <NoOptions>No options</NoOptions>
+    </OptionsWrapper>);
   } else if (typeof options[0] === 'string') {
     return (<OptionsWrapper {...otherProps} position={position}>
       {options.map(option =>

@@ -5,6 +5,9 @@ import { ThemeContext } from 'styled-components';
 
 const DisplayContainer = styled.div`
   position: relative;
+  display: inline-block;
+  height: fit-content;
+  width: fit-content;
 `;
 
 export default ({ onAction, showActionOnHover = true, children, ActionComponent }) => {

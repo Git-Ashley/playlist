@@ -1,11 +1,15 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import styled, { ThemeContext } from 'styled-components';
+import { useUser } from "app/UserContext";
 import { comfortTheme, defaultTheme } from 'app/theme';
 import { Link, useHistory } from 'react-router-dom';
 import { BsPersonFill, BsFillCaretDownFill } from 'react-icons/bs';
 import { NarrowStandardPageContainer } from 'components/layouts/pageContainers';
 import Dropdown, { NestedDropdown } from 'components/molecules/Dropdown';
 import Select from 'components/molecules/Select';
+import { RiHome2Fill as HomeIcon } from 'react-icons/ri';
+import apiRoutes from 'app/apiRoutes';
+import apiFetch from 'util/apiFetch';
 
 const Personalisation = styled.div`
   display: flex;
@@ -46,12 +50,21 @@ const UserIconContainer = styled(BsPersonFill)`
 export default ({ setTheme }) => {
   const themeContext = useContext(ThemeContext);
   const history = useHistory();
+  const [user, setUser] = useUser();
+
+  const logoutHandler = useCallback(() => {
+    apiFetch(apiRoutes.logout(), {})
+      .then(() => {
+        setUser(null);
+      })
+      .catch(console.log);
+  }, []);
 
   return (
     <AppHeader>
       <NarrowStandardPageContainer>
         <AppHeaderContent>
-          <Link to="/">Home</Link>
+          <Link to="/"><HomeIcon color={themeContext.secondaryText} size={48} /></Link>
           <Personalisation>
             <Dropdown
               label={<UserIconContainer size={40} />}
@@ -66,9 +79,9 @@ export default ({ setTheme }) => {
                 label="Theme"
               >
                 <div onClick={() => setTheme(defaultTheme)}>Default</div>
-                <div onClick={() => setTheme(comfortTheme)}>Eye comfort</div>
+                <div onClick={() => setTheme(comfortTheme)}>Experimental</div>
               </NestedDropdown>
-              <div onClick={() => console.log('logout!')}>Logout</div>
+              <div onClick={logoutHandler}>Logout</div>
             </Dropdown>
           </Personalisation>
         </AppHeaderContent>
