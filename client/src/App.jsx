@@ -4,7 +4,6 @@ import AuthRoute from 'components/customRoutes/AuthRoute';
 import styled, { ThemeProvider } from 'styled-components';
 import Course from 'features/course';
 import Home from 'features/home';
-import Login from 'features/Login';
 import AppHeader from 'features/AppHeader';
 import { UserProvider } from 'app/UserContext';
 import UserProfile from 'features/userProfile';
@@ -12,6 +11,7 @@ import apiRoutes from 'app/apiRoutes';
 import apiFetch from 'util/apiFetch';
 import LoadingPlaceholder from 'components/molecules/LoadingPlaceholder';
 import { defaultTheme } from 'app/theme';
+import GuestLogin from 'features/GuestLogin';
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
@@ -63,7 +63,7 @@ export default () => {
                 </AuthRoute>
                 { (!user || !user._id) && (
                   <Route path="/login">
-                    <Login onLoginSuccess={setUser} />
+                    <GuestLogin onLoginSuccess={setUser} />
                   </Route>
                 )}
                 <Redirect to={`/course/${COURSE_ID}`} />

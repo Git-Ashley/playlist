@@ -26,6 +26,8 @@ const Personalisation = styled.div`
   > :nth-child(3) {
     margin-left: 8px;
   }
+
+  ${props => props.disabled ? 'opacity: 50%; cursor: not-allowed;' : ''}
 `;
 
 const AppHeader = styled.div`
@@ -47,6 +49,11 @@ const UserIconContainer = styled(BsPersonFill)`
   padding: 4px;
 `;
 
+const DisabledUserIcon = styled(UserIconContainer)`
+  opacity: 50%;
+  cursor: not-allowed;
+`;
+
 export default ({ setTheme }) => {
   const themeContext = useContext(ThemeContext);
   const history = useHistory();
@@ -66,23 +73,26 @@ export default ({ setTheme }) => {
         <AppHeaderContent>
           <Link to="/"><HomeIcon color={themeContext.secondaryText} size={48} /></Link>
           <Personalisation>
-            <Dropdown
-              label={<UserIconContainer size={40} />}
-              color={themeContext.mainHeaderText}
-              overlayPosition={{ top: 30, right: 5 }}
-              width={85}
-              overlayWidth={100}
-            >
-              <div onClick={() => history.push("/user/profile")}>User</div>
-              <NestedDropdown
-                persistOverlay
-                label="Theme"
+            { user &&
+              <Dropdown
+                label={<UserIconContainer size={40} />}
+                color={themeContext.mainHeaderText}
+                overlayPosition={{ top: 30, right: 5 }}
+                width={85}
+                overlayWidth={100}
               >
-                <div onClick={() => setTheme(defaultTheme)}>Default</div>
-                <div onClick={() => setTheme(comfortTheme)}>Experimental</div>
-              </NestedDropdown>
-              <div onClick={logoutHandler}>Logout</div>
-            </Dropdown>
+                <div onClick={() => history.push("/user/profile")}>User</div>
+                <NestedDropdown
+                  persistOverlay
+                  label="Theme"
+                >
+                  <div onClick={() => setTheme(defaultTheme)}>Default</div>
+                  <div onClick={() => setTheme(comfortTheme)}>Experimental</div>
+                </NestedDropdown>
+                <div onClick={logoutHandler}>Logout</div>
+              </Dropdown>
+            }
+            { !user && <DisabledUserIcon size={40} /> }
           </Personalisation>
         </AppHeaderContent>
       </NarrowStandardPageContainer>

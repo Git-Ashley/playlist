@@ -240,6 +240,7 @@ export default () => {
 
   return (
     <InputContainer>
+      <Text.SubHeader bold center>{course.title}</Text.SubHeader>
       <Text.SubHeader bold center>{count} Cards</Text.SubHeader>
       <QuickFilters>
         <Button onClick={onSelectLearn}>Learn</Button>

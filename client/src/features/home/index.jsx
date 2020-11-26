@@ -114,7 +114,7 @@ export default () => {
   return <NarrowStandardPageContainer>
     <CoursesContainer>
       {courses.map(course => <CourseCard
-        joined={joinedCourses.includes(course._id)}
+        joined={/*joinedCourses.includes(course._id)*/true}
         course={course}
       />)}
       <CourseCreateBtn onClick={() => setShowCourseNameModal(true)} />

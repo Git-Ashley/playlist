@@ -156,7 +156,7 @@ const NewMem = ({ cardId, initOpen = false, ...otherProps }) => {
       <Memage src={imgFile.data} />
     ) : (
       <input
-        placeholder='New mem'
+        placeholder='Type or paste image'
         type='text'
         onPaste={handlePaste}
         value={text}

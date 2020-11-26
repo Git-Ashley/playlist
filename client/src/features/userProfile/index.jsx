@@ -14,15 +14,21 @@ export default () => {
   }, [newPassword]);
 
   return <NarrowStandardPageContainer>
-    <div>User profile: {JSON.stringify(user)}</div>
     <div>
-      <label>New password:</label>
-      <input
-        type="text"
-        value={newPassword}
-        onChange={e => setNewPassword(e.target.value)}
-      />
-      <button onClick={handleConfirmNewPassword}>Confirm</button>
+      <span>You are logged in as </span>
+      <span style={{fontWeight:'bold'}}>{user.username}</span>
     </div>
+    {/*
+      <div>User profile: {JSON.stringify(user)}</div>
+      <div>
+        <label>New password:</label>
+        <input
+          type="text"
+          value={newPassword}
+          onChange={e => setNewPassword(e.target.value)}
+        />
+        <button onClick={handleConfirmNewPassword}>Confirm</button>
+      </div>
+    */}
   </NarrowStandardPageContainer>;
 }

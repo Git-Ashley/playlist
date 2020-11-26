@@ -112,6 +112,9 @@ const CardRow = ({ card, i }) => {
   }, [dispatch]);
 
   const ignored = card.tags && card.tags.includes('ignore');
+  const reviewDate = card.review_date ?
+    new Date(card.review_date).toDateString() : '';
+
   return (
     <CardRowContainer ignored={ignored}>
       <div className='value'>{card.value}</div>
@@ -134,7 +137,7 @@ const CardRow = ({ card, i }) => {
           <div className='tags' />
         </>
       )}
-      <div className='review_date'>{new Date(card.review_date).toDateString()}</div>
+      <div className='review_date'>{reviewDate}</div>
       <div className='primary_index'>frq index: {card.primary_index}</div>
       <div className='secondary_index'>kodansha ref: {card.secondary_index}</div>
     </CardRowContainer>
