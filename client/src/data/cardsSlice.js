@@ -88,10 +88,11 @@ export const removeTagFromBlueprint = (cardId, tag) => (dispatch, getState) => {
 export const addTag = (cardId, tag) => (dispatch, getState) => {
   const state = getState();
   const currentCard = selectCard(cardId)(state);
-  if (currentCard.tags.includes(tag)) {
+  const cardTags = currentCard.tags || [];
+  if (cardTags.includes(tag)) {
     return;
   }
-  const updatedTags = [...currentCard.tags, tag];
+  const updatedTags = [...cardTags, tag];
   dispatch(updateCard(cardId, { tags: updatedTags }));
 };
 

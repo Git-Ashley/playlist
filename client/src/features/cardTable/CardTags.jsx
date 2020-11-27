@@ -17,7 +17,9 @@ export default ({ cardId, userTags = [], courseTags = [], ...otherProps }) => {
   const [user] = useUser();
   const [course] = useCourse();
 
-  const userTagOptions = user.courses[course._id].tags;
+
+  const userTagOptions = user.courses[course._id] ?
+    user.courses[course._id].tags : [];
   const courseTagOptions = course.tags;
 
   const handleAddUserTag = useCallback((tag) => {

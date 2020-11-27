@@ -19,6 +19,8 @@ const courseRoutes = require('./routes/course');
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
 
+const MEMAGE_URL = 'client:33404';
+
 const userCardProjectionExclude = {
   'card_id': 0,
   'user_id': 0,
@@ -213,7 +215,7 @@ router.post('/mem/delete', async (req, res) => {
   if (mem.imgUrl) {
     try {
       const res = await superagent
-          .post('http://localhost:33404/memage/delete/')
+          .post(`http://${MEMAGE_URL}/memage/delete/`)
           .send({ imgUrl: mem.imgUrl });
       const msg = res.body.msg;
       await Mem.deleteOne({ _id: memId });
@@ -245,7 +247,7 @@ router.post('/mem/add', async (req, res) => {
   if (imgData) {
     try {
       const res = await superagent
-        .put('http://localhost:33404/memage/')
+        .put(`http://${MEMAGE_URL}/memage/`)
         .send({ ...imgData });
       const url = res.body.url;
       newMem = await Mem.create({
@@ -281,11 +283,15 @@ router.post('/mem/add', async (req, res) => {
  */
 router.post('/course/:courseId/tag/create', async (req, res) => {
   const user = req.user;
-  const courseId = req.courseId;
+  const courseId = req.params.courseId;
   const newTag = req.body.tag;
 
-  if (!courseId || !user.courses[courseId]) {
+  if (!courseId) {
     res.status(400).json();
+  }
+
+  if (!user.courses[courseId]) {
+    user.courses[courseId] = {};
   }
 
   const tags = user.courses[courseId].tags;
