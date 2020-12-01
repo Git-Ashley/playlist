@@ -66,7 +66,7 @@ export default () => {
                     <Login onLoginSuccess={setUser} />
                   </Route>
                 )}
-                <Redirect to={`/course/${COURSE_ID}`} />
+                <Redirect to='/' />
               </Switch>
             </AppContent>
           </UserProvider>
