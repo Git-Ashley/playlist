@@ -30,12 +30,13 @@ const JOINED_COURSES = [
 const CoursesContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const CourseCardWrapper = styled.div`
-  padding: 60px;
-  width: 25%;
-  height: 300px;
+  margin: 40px 40px 0;
+  width: 140px;
+  height: 180px;
 `;
 
 const CardContainer = styled(Link)`
@@ -53,6 +54,9 @@ const CardContainer = styled(Link)`
 const CourseCardContainer = styled(CardContainer)`
   background-color: white;
   box-shadow: 0 0 5px 1px rgb(180,180,180);
+  text-align: center;
+  word-break: break-word;
+  padding: 15px;
   &:focus, &:hover {
     box-shadow: 0 0 5px 1px ${props => props.theme.primary};
   }
@@ -96,12 +100,16 @@ const CourseCreateBtn = ({ theme, onClick }) => <CourseCardWrapper>
 export default () => {
   const [showCourseNameModal, setShowCourseNameModal] = useState(false);
   const [user] = useUser();
+  const [newCourseInputErr, setNewCourseInputErr] = useState('');
   const joinedCourses = Object.keys(user.courses);
   const history = useHistory();
 
   const [courses, isFetchingCourses] = useFetchNow(apiRoutes.courses());
 
   const handleCreateCourse = useCallback(title => {
+    if (title && title.length > 30) {
+      return setNewCourseInputErr('Title must be under 30 characters!');
+    }
     apiFetch(apiRoutes.createCourse(), { title }).then(course => {
       history.push(`/course/${course._id}`);
     });
@@ -120,6 +128,7 @@ export default () => {
       <CourseCreateBtn onClick={() => setShowCourseNameModal(true)} />
     </CoursesContainer>
     <TextInputModal
+      error={newCourseInputErr}
       header='Enter a course name'
       show={showCourseNameModal}
       onConfirm={handleCreateCourse}

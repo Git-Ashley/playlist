@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Confirm from 'components/molecules/Modal/Confirm';
-import TextInput from 'components/atoms/inputs/Text';
+import TextField from 'components/molecules/Fields/Text';
 import Center from 'styles/Center';
 
-export default ({ onConfirm, inputWidth = 120, ...props }) => {
+export default ({ onConfirm, inputWidth = 120, error, ...props }) => {
   const [text, setText] = useState('');
 
   return (
@@ -13,10 +13,12 @@ export default ({ onConfirm, inputWidth = 120, ...props }) => {
       {...props}
     >
       <Center>
-        <TextInput
+        <TextField
           onChange={e => setText(e.target.value)}
           value={text}
+          error={error}
           inputWidth={inputWidth}
+          marginBottom={35}
         />
       </Center>
     </Confirm>

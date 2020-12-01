@@ -40,7 +40,7 @@ const InputContainer = styled(CardOutline)`
   }
 
   @media screen and (max-width: ${props => props.theme.screen.l - 1}px) {
-    & > :nth-child(n+3) {
+    & > :nth-child(n+4) {
       display: none;
     }
   }

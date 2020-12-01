@@ -4,7 +4,6 @@ import Modal from './index';
 import Button from 'components/atoms/buttons/Button';
 
 const ButtonsContainer = styled.div`
-  margin-top: 30px;
   display: flex;
 
   & > * {
