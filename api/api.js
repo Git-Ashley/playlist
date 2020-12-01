@@ -281,11 +281,15 @@ router.post('/mem/add', async (req, res) => {
  */
 router.post('/course/:courseId/tag/create', async (req, res) => {
   const user = req.user;
-  const courseId = req.courseId;
+  const courseId = req.params.pcourseId;
   const newTag = req.body.tag;
 
-  if (!courseId || !user.courses[courseId]) {
+  if (!courseId) {
     res.status(400).json();
+  }
+
+  if (!user.courses[courseId]) {
+    user.courses[courseId] = {};
   }
 
   const tags = user.courses[courseId].tags;

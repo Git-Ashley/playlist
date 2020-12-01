@@ -7,7 +7,7 @@ const attrs = {
   card_id: { type: Schema.Types.ObjectId, required: true },
   selected_mem: { type: Schema.Types.ObjectId },
   level: Number,
-  tags: [String],
+  tags: { type: [String], default: [] },
   review_date: Schema.Types.Date
 };
 

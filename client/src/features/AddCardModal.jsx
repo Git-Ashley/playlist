@@ -8,6 +8,10 @@ import { useCourse } from 'app/CourseContext';
 import { createCard } from 'data/cardsSlice';
 import toastr from 'toastr';
 
+const PaddedPillContainer = styled(PillContainer)`
+  margin-bottom: 20px;
+`;
+
 export default ({ onClose, onCreateFinish, show }) => {
   const [value, setValue] = useState('幡');
   const [definition, setDefinition] = useState('some def');
@@ -82,7 +86,7 @@ export default ({ onClose, onCreateFinish, show }) => {
         onChange={e => setSecondary(e.target.value)}
         inputWidth={170}
       />
-      <PillContainer width={170}>
+      <PaddedPillContainer width={170}>
         {tags.map(tag =>
           <Pill
             key={tag}
@@ -94,7 +98,7 @@ export default ({ onClose, onCreateFinish, show }) => {
           onAddNewTag={tag => courseTagOptions.length && setTags(tags.concat(tag))}
           tagOptions={courseTagOptions}
         />
-      </PillContainer>
+      </PaddedPillContainer>
     </ConfirmModal>
   );
 }
