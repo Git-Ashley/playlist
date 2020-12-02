@@ -85,6 +85,7 @@ const CardRowContainer = styled(CardOutline)`
   }
 
   & > .mems {
+    min-height: 110px;
     position: relative;
     border-bottom-left-radius: inherit;
     border-bottom-right-radius: inherit;
