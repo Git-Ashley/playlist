@@ -285,7 +285,7 @@ router.post('/course/:courseId/tag/create', async (req, res) => {
   const newTag = req.body.tag;
 
   if (!courseId) {
-    res.status(400).json();
+    return res.status(400).json();
   }
 
   if (!user.courses[courseId]) {
@@ -298,7 +298,7 @@ router.post('/course/:courseId/tag/create', async (req, res) => {
   } else if (!tags.includes(newTag)) {
     tags.push(newTag);
   } else {
-    res.status(400).json({ msg: 'tag already exists' });
+    return res.status(400).json({ msg: 'tag already exists' });
   }
 
   user.markModified('courses');
@@ -308,11 +308,15 @@ router.post('/course/:courseId/tag/create', async (req, res) => {
 });
 
 router.post('/course/:courseId/course-tag/create', async (req, res) => {
-  const courseId = req.courseId;
+  const courseId = req.params.courseId;
   const newTag = req.body.tag;
 
-  if (!newTag || !courseId) {
-    res.status(400).json();
+  if (!newTag) {
+    return res.status(400).json({ error: 'No tag given' });
+  }
+
+  if (!courseId) {
+    return res.status(400).json({ error: 'Course ID not found' });
   }
 
   const updatedCourse = await Course.findOneAndUpdate(
@@ -322,10 +326,10 @@ router.post('/course/:courseId/course-tag/create', async (req, res) => {
   );
 
   if (!updatedCourse) {
-    res.status(400).json();
+    return res.status(400).json();
   }
 
-  res.json(updatedCourse);
+  return res.json(updatedCourse);
 });
 
 /**
