@@ -18,6 +18,8 @@ import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi';
 import AddCardModal from 'features/AddCardModal';
 
 const InputContainer = styled(CardOutline)`
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 10px;
   width: 270px;
 
