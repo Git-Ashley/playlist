@@ -30,17 +30,31 @@ const CardRowContainer = styled(CardOutline)`
     "mems";
   grid-gap: 0px;
 
-  @media screen and (min-width: ${props => props.theme.screen.l}px) {
-    grid-template-columns: 100px 200px 200px fit-content(300px);
-    grid-template-areas:
-      "value def             review_date mems"
-      "value def             controls    mems"
-      "value def             controls    mems"
-      "tags  primary_index   controls    mems"
-      "tags  secondary_index controls    mems"
-      "tags  misc1           controls    mems";
-    width: auto;
-  }
+  ${props => props.revealed ? `
+    @media screen and (min-width: ${props.theme.screen.l}px) {
+      grid-template-columns: 100px 200px 200px fit-content(300px);
+      grid-template-areas:
+        "value def             review_date mems"
+        "value def             controls    mems"
+        "value def             controls    mems"
+        "tags  primary_index   controls    mems"
+        "tags  secondary_index controls    mems"
+        "tags  misc1           controls    mems";
+      width: auto;
+    }
+  `: `
+    @media screen and (min-width: ${props.theme.screen.l}px) {
+      grid-template-columns: 100px 200px 200px fit-content(300px);
+      grid-template-areas:
+        "value def             review_date"
+        "value def             review_date"
+        "value def             review_date"
+        "tags  primary_index   review_date"
+        "tags  secondary_index review_date"
+        "tags  misc1           review_date";
+      width: auto;
+    }
+  `}
 
   & > * {
     display: flex;
@@ -69,6 +83,8 @@ const CardRowContainer = styled(CardOutline)`
 
   & > .review_date {
     grid-area: review_date;
+    color: rgba(0,0,0,0.5);
+    font-weight: bold;
   }
 
   & > .primary_index {
@@ -112,12 +128,15 @@ const CardRow = ({ card, i }) => {
     dispatch(updateBlueprint(card._id, updates));
   }, [dispatch]);
 
+  const reviewDate = card.review_date ?
+    new Date(card.review_date).toDateString() : 'Unlearnt';
+
   const ignored = card.tags && card.tags.includes('ignore');
   const reviewDate = card.review_date ?
     new Date(card.review_date).toDateString() : '';
 
   return (
-    <CardRowContainer ignored={ignored}>
+    <CardRowContainer revealed={show} ignored={ignored}>
       <div className='value'>{card.value}</div>
       {show ? (
         <>
