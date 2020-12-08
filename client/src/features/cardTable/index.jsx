@@ -128,9 +128,6 @@ const CardRow = ({ card, i }) => {
     dispatch(updateBlueprint(card._id, updates));
   }, [dispatch]);
 
-  const reviewDate = card.review_date ?
-    new Date(card.review_date).toDateString() : 'Unlearnt';
-
   const ignored = card.tags && card.tags.includes('ignore');
   const reviewDate = card.review_date ?
     new Date(card.review_date).toDateString() : '';
