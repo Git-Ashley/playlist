@@ -130,7 +130,7 @@ const CardRow = ({ card, i }) => {
 
   const ignored = card.tags && card.tags.includes('ignore');
   const reviewDate = card.review_date ?
-    new Date(card.review_date).toDateString() : '';
+    new Date(card.review_date).toDateString() : 'Unlearnt';
 
   return (
     <CardRowContainer revealed={show} ignored={ignored}>
