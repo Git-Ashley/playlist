@@ -3,14 +3,19 @@ const Schema = mongoose.Schema;
 
 const attrs = {
   value: { type: String, required: true },
-  definition: String,
+  definition: [String],
   mems: [Schema.Types.ObjectId],
-  primary_index: Schema.Types.Mixed,// the default index
+  primary_index: { type: Schema.Types.Mixed, required: true },
+  examples: [{
+    example: String,
+    answer: String
+  }],
   secondary_index: Schema.Types.Mixed,
   tertiary_index: Schema.Types.Mixed,
-  other_attributes: [{
+  attributes: [{
     key: { type: String, required: true },
     value: { type: String, required: true },
+    value_type: { type: String, default: 'string' },//audio|image|string
     showWithValue: { type: Schema.Types.Bool, default: false }
   }],//NOT ABLE TO INDEX.
   course_id: { type: Schema.Types.ObjectId, required: true },

@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"docker-node-mongo.items"}],"uuid":"2504312b42fb48c08f5c2010bc41906c"}
