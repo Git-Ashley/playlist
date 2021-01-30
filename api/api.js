@@ -62,6 +62,10 @@ const getStatsWithCards = (query, sort) => {
     }
   });
 
+  console.log('statsQuery:', JSON.stringify(statsQuery));
+  console.log('sort:', JSON.stringify(sort));
+  console.log('cardQuery:', JSON.stringify(cardQuery));
+
   return UserCardStats.aggregate([
     {
       '$match': statsQuery
@@ -188,6 +192,70 @@ router.use(authInit);
 router.use('/auth', authRoutes);
 router.use('/user', userRoutes);
 router.use('/course/:courseId', courseRoutes);
+
+/**
+ * Card routes
+ */
+router.post('/cards/search', async (req, res) => {
+  const userId = req.user.id;
+
+  const {
+    excludeUserTags = [],
+    excludeCourseTags = [],
+    includeUserTags = [],
+    includeCourseTags = [],
+    sortField = 'primary_index',
+    sortMode = 1,
+    reviewDateMode,
+    courseId,
+    ...rest
+  } = req.body;
+
+  const sort = { [sortField]: sortMode };
+
+  /**
+   * For queries that involve both CARD and STATS, see https://docs.mongodb.com/manual/reference/database-references/
+   */
+  const query = {
+    user_id: mongoose.Types.ObjectId(userId),
+    course_id: courseId ? mongoose.Types.ObjectId(courseId) : undefined,
+    tags: { $nin: excludeUserTags },
+    course_tags: { $nin: excludeCourseTags },
+    ...rest
+  };
+
+  if (includeUserTags.length) {
+    query.tags.$all = includeUserTags;
+  }
+
+  if (includeCourseTags.length) {
+    query.course_tags.$all = includeCourseTags;
+  }
+
+  if (reviewDateMode === 'BEFORE') {
+    query.review_date = { $lte: new Date() };
+  } else if (reviewDateMode === 'AFTER') {
+    query.review_date = { $gte: new Date() };
+  } else if (reviewDateMode === 'LEARNT') {
+    query.review_date = { $exists: true }
+  } else if (reviewDateMode === 'UNLEARNT') { // i.e. unlearnt
+    query.review_date = null;
+  }
+
+  const userCards = await getCards(query, sort);
+  const data = userCards[0].data;
+  const count = userCards[0].count[0] && userCards[0].count[0].count;
+
+  // Temporary, until the stupid review_date/level system is changed.
+  data.forEach(userCard => {
+    userCard.level = Math.floor(userCard.level/req.user.default_levels.length);
+  });
+
+  res.json({
+    data,
+    count,
+  });
+});
 
 /**
  * Mem routes
@@ -332,70 +400,6 @@ router.post('/course/:courseId/course-tag/create', async (req, res) => {
   return res.json(updatedCourse);
 });
 
-/**
- * Card routes
- */
-router.post('/cards/search', async (req, res) => {
-  const userId = req.user.id;
-
-  const {
-    excludeUserTags = [],
-    excludeCourseTags = [],
-    includeUserTags = [],
-    includeCourseTags = [],
-    sortField = 'primary_index',
-    sortMode = 1,
-    reviewDateMode,
-    courseId,
-    ...rest
-  } = req.body;
-
-  const sort = { [sortField]: sortMode };
-
-  /**
-   * For queries that involve both CARD and STATS, see https://docs.mongodb.com/manual/reference/database-references/
-   */
-  const query = {
-    user_id: mongoose.Types.ObjectId(userId),
-    course_id: courseId ? mongoose.Types.ObjectId(courseId) : undefined,
-    tags: { $nin: excludeUserTags },
-    course_tags: { $nin: excludeCourseTags },
-    ...rest
-  };
-
-  if (includeUserTags.length) {
-    query.tags.$all = includeUserTags;
-  }
-
-  if (includeCourseTags.length) {
-    query.course_tags.$all = includeCourseTags;
-  }
-
-  if (reviewDateMode === 'BEFORE') {
-    query.review_date = { $lte: new Date() };
-  } else if (reviewDateMode === 'AFTER') {
-    query.review_date = { $gte: new Date() };
-  } else if (reviewDateMode === 'LEARNT') {
-    query.review_date = { $exists: true }
-  } else if (reviewDateMode === 'UNLEARNT') { // i.e. unlearnt
-    query.review_date = null;
-  }
-
-  const userCards = await getCards(query, sort);
-  const data = userCards[0].data;
-  const count = userCards[0].count[0] && userCards[0].count[0].count;
-
-  // Temporary, until the stupid review_date/level system is changed.
-  data.forEach(userCard => {
-    userCard.level = Math.floor(userCard.level/req.user.default_levels.length);
-  });
-
-  res.json({
-    data,
-    count,
-  });
-});
-
 router.post('/card/create', async (req, res) => {
   const data = req.body;
 
@@ -458,6 +462,7 @@ router.post('/card/:cardId/review', async (req, res) => {
   const user = req.user;
   const cardId = req.params.cardId;
   const level = req.body.level;
+  const courseId = req.body.courseId;
   const { denomination, value } = user.default_levels[level];
   const updates = {};
 
@@ -465,8 +470,11 @@ router.post('/card/:cardId/review', async (req, res) => {
   const score = level * user.default_levels.length;
 
   if (!isNaN(level)) {
+    const card = await Card.findOne({ _id: cardId });
+
     updates.level = score;
     updates.review_date = nextReview;
+    updates.course_id = card.course_id;
 
     const userCardInfo = await UserCardStats.findOneAndUpdate(
       {
@@ -479,8 +487,6 @@ router.post('/card/:cardId/review', async (req, res) => {
         upsert: true, // Make this update into an upsert
       }
     );
-
-    const card = await Card.findOne({ _id: userCardInfo.card_id });
 
     const userCard = combineCardAndStats(card, userCardInfo, req.user);
 
@@ -559,12 +565,21 @@ router.post('/card/:cardId/blueprint', async (req, res) => {
 
   const updates = {};
   const newDef = req.body.definition;
+  const newValue = req.body.value;
   const courseTags = req.body.course_tags;
+  const attributes = req.body.attributes;
 
   if (newDef) {
     updates.definition = newDef;
-  } else if (Array.isArray(courseTags)) {
+  }
+  if (Array.isArray(courseTags)) {
     updates.course_tags = [...new Set(courseTags).values()];
+  }
+  if (newValue) {
+    updates.value = newValue;
+  }
+  if (attributes) {
+    updates.attributes = attributes;
   }
 
   const updatedCard = await Card.findOneAndUpdate(

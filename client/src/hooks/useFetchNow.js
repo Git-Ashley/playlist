@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import apiFetch from 'util/apiFetch';
 
-export default (url, payload, capture = [], ops) => {
+export default (url, payload, ops) => {
   const [data, setData] = useState(null);
   const [isLoading, setLoading] = useState(true);
 
@@ -12,7 +12,7 @@ export default (url, payload, capture = [], ops) => {
       .then(setData)
       .catch(console.log)
       .then(() => setLoading(false))
-  }, capture);
+  }, [ops, payload, url]);
 
   return [data, isLoading];
 };

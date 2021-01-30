@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { NarrowStandardPageContainer } from 'components/layouts/pageContainers';
 import apiRoutes from 'app/apiRoutes';
@@ -11,21 +11,6 @@ import Button from 'components/atoms/buttons/Button';
 import { BiCog } from "react-icons/bi";
 import { BsPlus } from 'react-icons/bs';
 import TextInputModal from 'components/molecules/Modal/TextInputModal';
-
-
-
-const COURSES = [
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"1ebc9e10f8144bff47de9cc8",title:"Kanji 2500"},
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"2ebc9e10f8144bff47de9cc8",title:"Vocab 2000"},
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"3ebc9e10f8144bff47de9cc8",title:"Kanji 3000"},
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"4ebc9e10f8144bff47de9cc8",title:"Vocab 4000"},
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"5ebc9e10f8144bff47de9cc8",title:"Vocab 6000"},
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"6ebc9e10f8144bff47de9cc8",title:"Vocab 8000"},
-  {tags:["kodansha","test-tag","人名用","表外","N1"],_id:"7ebc9e10f8144bff47de9cc8",title:"Vocab 10000"},
-]
-const JOINED_COURSES = [
-  '2ebc9e10f8144bff47de9cc8'
-];
 
 const CoursesContainer = styled.div`
   display: flex;

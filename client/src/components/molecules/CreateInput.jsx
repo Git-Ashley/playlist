@@ -12,7 +12,6 @@ const CreateInputContainer = styled.div`
 
 export default ({ onCreate }) => {
   const [inputMode, setInputMode] = useState(false);
-  const [text, setText] = useState('');
   const theme = useContext(ThemeContext);
 
   if (inputMode) {

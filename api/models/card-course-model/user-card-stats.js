@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const attrs = {
   user_id: { type: Schema.Types.ObjectId, required: true },
-  course_id: { type: Schema.Types.ObjectId, required: false },
+  course_id: { type: Schema.Types.ObjectId, required: true },
   card_id: { type: Schema.Types.ObjectId, required: true },
   selected_mem: { type: Schema.Types.ObjectId },
   level: Number,

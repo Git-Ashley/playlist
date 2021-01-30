@@ -114,7 +114,9 @@ export default () => {
 
   const [includeUserTags, setIncludeUserTags] = useState([]);
   const [excludeUserTags, setExcludeUserTags] = useState(['ignore']);
-  const [includeCourseTags, setIncludeCourseTags] = useState([]);
+
+  const defaultTags = course.isKanji() ? [] : ['N5'];
+  const [includeCourseTags, setIncludeCourseTags] = useState(defaultTags);
   //TODO: const [excludeCourseTags, setExcludeCourseTags] = useState([]);
 
   const [sortField, setSortField] = useState('primary_index');
@@ -144,6 +146,7 @@ export default () => {
     reviewDateMode,
     sortField,
     sortMode,
+    courseId,
   ]);
 
   const onSelectLearn = useCallback(() => {
@@ -170,7 +173,7 @@ export default () => {
       sortMode: newSortMode,
       courseId,
     }));
-  }, [dispatch]);
+  }, [dispatch, courseId]);
 
   const onSelectReview = useCallback(() => {
     const newExcludeUserTags = ['ignore'];
@@ -196,7 +199,7 @@ export default () => {
       sortMode: newSortMode,
       courseId,
     }));
-  }, [course]);
+  }, [course, courseId]);
 
   useEffect(() => {
     apply();

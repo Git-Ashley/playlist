@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import styled from 'styled-components';
 import { selectCards } from "data/cardsSlice";
 import { selectSearchOrder, selectPage } from 'features/cardTable/cardTableSlice';
