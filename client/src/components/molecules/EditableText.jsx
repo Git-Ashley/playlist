@@ -21,7 +21,7 @@ const EditSymbol = styled.span`
     font-size: 24px;
     position: absolute;
     top: -2px;
-    right: 1px;
+    right: 3px;
   }
   position: absolute;
   top: 4px;

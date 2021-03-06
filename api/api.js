@@ -11,20 +11,16 @@ const UserCardStats = require('./models/card-course-model/user-card-stats');
 const Mem = require('./models/card-course-model/mem');
 const Course = require('./models/card-course-model/course');
 
+const { combineCardAndStats, userCardProjectionExclude } = require('./user-card-utils');
+
 // Other routes
 const authInit = require('./routes/auth/init');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const courseRoutes = require('./routes/course');
+const statsRoutes = require('./routes/stats');
 
 const COURSE_ID = '5ebc9e10f8144bff47de9cc8';
-
-const userCardProjectionExclude = {
-  'card_id': 0,
-  'user_id': 0,
-  'course_id': 0,
-  '__v': 0
-};
 
 const limitAndFormatStatsWithCards = () => [
   {
@@ -61,10 +57,6 @@ const getStatsWithCards = (query, sort) => {
       cardQuery[`card.0.${key}`] = query[key];
     }
   });
-
-  console.log('statsQuery:', JSON.stringify(statsQuery));
-  console.log('sort:', JSON.stringify(sort));
-  console.log('cardQuery:', JSON.stringify(cardQuery));
 
   return UserCardStats.aggregate([
     {
@@ -116,6 +108,9 @@ const getCardsWithStats = (query, sort) => {
       cardQuery[key] = query[key];
     }
   });
+  if (cardQuery.value) {
+    cardQuery.value = { '$regex': cardQuery.value };
+  }
 
   return Card.aggregate([
     {
@@ -189,9 +184,14 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json({ limit: '1mb' }));
 router.use(cookieParser());
 router.use(authInit);
+
+/**
+ * Sub routes
+ */
 router.use('/auth', authRoutes);
 router.use('/user', userRoutes);
 router.use('/course/:courseId', courseRoutes);
+router.use('/stats', statsRoutes);
 
 /**
  * Card routes
@@ -446,17 +446,6 @@ router.get('/courses', async (req, res) => {
   const courses = await Course.find({});
   res.json(courses);
 });
-
-const combineCardAndStats = (card, stats = { _doc: {} }, user) => {
-  const userCard = { ...stats._doc, ...card._doc };
-  Object.keys(userCardProjectionExclude).forEach(field => {
-    delete userCard[field];
-  });
-
-  userCard.level = Math.floor(userCard.level/user.default_levels.length);
-
-  return userCard;
-};
 
 router.post('/card/:cardId/review', async (req, res) => {
   const user = req.user;

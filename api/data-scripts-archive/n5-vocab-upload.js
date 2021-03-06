@@ -3,9 +3,6 @@ const Card = require('../models/card-course-model/card.js');
 const fs = require('fs');
 const csv = require('csv-parser');
 
-
-
-
 let dupes = 0;
 let newInserts = 0;
 let dbInserts = 0;

@@ -1,8 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import ReviewActions from './CardReviewActions';
 import Mems from './Mems';
 import CardTags from './CardTags';
+import apiFetch from 'util/apiFetch';
+import apiRoutes from 'app/apiRoutes';
 import Button from 'components/atoms/buttons/Button';
 import EditableText from 'components/molecules/EditableText';
 import { CardOutline } from 'styles/Cards';
@@ -122,6 +124,11 @@ export default ({ card, i }) => {
   const [show, setShow] = useState(false);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (show) {
+      apiFetch(apiRoutes.getKanjiStats(card.value)).then(console.log);
+    }
+  }, [show]);
   const onUpdateBlueprint = useCallback(updates => {
     dispatch(updateBlueprint(card._id, updates));
   }, [dispatch, card._id]);

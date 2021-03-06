@@ -10,6 +10,9 @@ const apiRoutes = {
   logout: () => '/auth/logout',
 
   cards: () => '/cards',
+  mems: () => '/mems',
+  courses: () => '/courses',
+
   cardsSearch: () => '/cards/search',
   createCard: data => '/card/create',
   updateCard: cardId => `/card/${cardId}/update`,
@@ -17,15 +20,15 @@ const apiRoutes = {
   unlearnCard: cardId => `/card/${cardId}/unlearn`,
   updateBlueprint: cardId => `/card/${cardId}/blueprint`,
 
-  mems: () => '/mems',
   addMem: () => '/mem/add',
   deleteMem: () => '/mem/delete',
 
-  courses: () => '/courses',
   course: (courseId) => `/course/${courseId}`,
   createCourse: () => '/course/create',
   createUserTag: (courseId) => `/course/${courseId}/tag/create`,
   createCourseTag: (courseId) => `/course/${courseId}/course-tag/create`,
+
+  getKanjiStats: (kanji) => `/stats/kanji/${kanji}`,
 };
 
 const derivedApiRoutes = Object.entries(apiRoutes).reduce((accum, [key, fn]) => {

@@ -255,7 +255,7 @@ export default () => {
         <TextEntry
           icon={SearchIcon}
           inputWidth={50}
-          onEnter={kanji => dispatch(searchCards({ value: kanji }))}
+          onEnter={kanji => dispatch(searchCards({ courseId: course._id, value: kanji }))}
           placeholder='kanji'
         />
       </Center>

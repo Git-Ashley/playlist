@@ -24,7 +24,6 @@ const attrs = {
 
 const CardSchema = new Schema(attrs);
 
-CardSchema.index({ value: 1 });
 CardSchema.index({ course_id: 1, primary_index: 1 });
 CardSchema.index(
   { course_id: 1, secondary_index: 1 },

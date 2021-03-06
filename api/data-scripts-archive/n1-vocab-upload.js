@@ -9,11 +9,13 @@ let newInserts = 0;
 
 /*
   TODO
-  The script works as is, but with some issues with digitalIndex including spaces in some entries.
+  The script works as is.
   N1 hasn't been included yet because there is no furigana, and N1 would
   bloat the DB, and we may as well wait until (if) furigana gets added, or until
   I eventually get round to N1 in a long time.
-  Tbh I might just create a separate N1 course.
+
+  UPDATE: I did upload them in a separate course on 30th Jan 2021. But only because I wanted
+  to test if a kanji was contained in an N1 vocab word. The issues above have not been resolved.
 */
 
 const SECTION = 'Tag';
@@ -47,7 +49,7 @@ const uploadVocab = (courseId) => {
         let tag = data[TAG];
 
         if (digitalIndex.length !== 4 && digitalIndex.length !== 8) {
-          //throw `Unexpected digitalIndex: ${digitalIndex} has length ${digitalIndex.length}`;
+          throw `Unexpected digitalIndex: ${digitalIndex} has length ${digitalIndex.length}`;
         }
 
         const value = data[VALUE];
@@ -92,8 +94,7 @@ const uploadVocab = (courseId) => {
             value_type: 'audio',
             value: audioFile,
           }],
-          course_tags: [`N${N}`, tag],
-          course_id: mongoose.Types.ObjectId('600203a5a39a74def6527f7c')
+          course_id: mongoose.Types.ObjectId('60158699f2dbe52d48c28711')
         };
 
         if (data[EXAMPLE]) {

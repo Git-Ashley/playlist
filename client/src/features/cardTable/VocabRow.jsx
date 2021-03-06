@@ -141,6 +141,14 @@ const DeleteSymbol = styled(BsX)`
   cursor: pointer;
 `;
 
+const BlurText = styled.div`
+  filter: blur(10px);
+  cursor: default;
+  &:hover {
+    filter: none;
+  }
+`;
+
 export default ({ card, i }) => {
   const [show, setShow] = useState(false);
   const dispatch = useDispatch();
@@ -175,7 +183,7 @@ export default ({ card, i }) => {
           <Mems className='mems' card={card} />
           <CardTags className='tags' cardId={card._id} userTags={card.tags} courseTags={card.course_tags} />
           <div className='primary_index'>Index: {card.primary_index}</div>
-          {card.attributes.map(({ key, value }) => {
+          {card.attributes && card.attributes.map(({ key, value }) => {
             if (key === 'audio') {
               return (
                 <ActionableDisplay
@@ -199,7 +207,7 @@ export default ({ card, i }) => {
           {card.examples && card.examples.length && <div className="examples">
             {card.examples.map(({ example, answer }) => <div className="example-pair">
               <FuriganaText className='example'>{example}</FuriganaText>
-              <div className='answer'>{answer}</div>
+              <BlurText className='answer'>{answer}</BlurText>
             </div>)}
           </div>}
         </>
