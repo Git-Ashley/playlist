@@ -479,10 +479,10 @@ router.post('/card/:cardId/review', async (req, res) => {
 
     const userCard = combineCardAndStats(card, userCardInfo, req.user);
 
-    res.json(userCard);
+    return res.json(userCard);
   }
 
-  return res.json({ error: 'Oops! Something went wrong! Please contact support at support@/dev/null'});
+  return res.json({ error: 'Oops! Something went wrong! Please contact us at support@/dev/null'});
 });
 
 // Update user specific stuff
