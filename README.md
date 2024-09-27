@@ -1,0 +1,1 @@
+This repo is poorly named. It is an app designed to aid in language learning, or anything else where memorizing helps. It is based on the spaced repetition learning technique (https://en.wikipedia.org/wiki/Spaced_repetition). See the japanese branch for the most up to date version of the app.
