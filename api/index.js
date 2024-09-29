@@ -5,7 +5,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const api = require('./api');
 
-const mongoUrl = 'mongodb://localhost:27017/docker-node-mongo';
+const mongoUrl = 'mongodb://db:27017/docker-node-mongo';
 const PORT = 4435;
 
 mongoose

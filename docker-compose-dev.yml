@@ -11,14 +11,14 @@ services:
       - db
 
   db:
-    container_name: memapp-test-1
-    image: mongo:latest
+    container_name: memapp-db
+    image: mongo:4.4.6
     ports:
       - "27017:27017"
-    volumes:
-      - type: volume
-        source: memapp-test-vol-3
-        target: /data/db
+#    volumes:
+#      - type: volume
+#        source: memapp-test-vol-3
+#        target: /data/db
 
   client:
     build:
@@ -32,5 +32,5 @@ services:
     links:
       - api
 
-volumes:
-  memapp-test-vol-3:
+#volumes:
+#  memapp-test-vol-3:

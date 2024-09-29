@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-MONGO_DB_NAME="memapp-test-1"
+MONGO_DB_NAME="memapp-db"
 DATA_NAME="memapp-data-2021-01-23"
 
 docker exec ${MONGO_DB_NAME} mongodump --quiet --out /tmp/${DATA_NAME}
